@@ -1,0 +1,175 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-ivory: #F5F0E6;
+  --color-ivory-warm: #FAF7F0;
+  --color-ivory-deep: #ECE5D8;
+  --color-charcoal: #202020;
+  --color-charcoal-deep: #141414;
+  --color-charcoal-light: #2A2A2A;
+  --color-charcoal-soft: #383838;
+  --color-gold: #C5A15B;
+  --color-gold-light: #DFC488;
+  --color-gold-dim: #9E7B36;
+  --color-royal-blue: #1265B3;
+  --color-deep-purple: #492080;
+  --color-warm-grey: #E9E5DE;
+  --color-border-subtle: rgba(197, 161, 91, 0.18);
+  --color-border-dark: rgba(255, 255, 255, 0.08);
+
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-heading: 'Cinzel', 'Cormorant Garamond', serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Base Body Styles */
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-charcoal-deep);
+  color: var(--color-ivory);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: var(--color-charcoal-deep);
+  color: var(--color-ivory);
+}
+
+/* Editorial Typography Utilities */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+/* Luxury Editorial Accents */
+.text-gold {
+  color: var(--color-gold);
+}
+
+.bg-gold {
+  background-color: var(--color-gold);
+}
+
+.border-gold {
+  border-color: var(--color-gold);
+}
+
+.bg-charcoal {
+  background-color: var(--color-charcoal);
+}
+
+.bg-charcoal-deep {
+  background-color: var(--color-charcoal-deep);
+}
+
+.bg-ivory {
+  background-color: var(--color-ivory);
+}
+
+.text-charcoal {
+  color: var(--color-charcoal);
+}
+
+.text-ivory {
+  color: var(--color-ivory);
+}
+
+/* Custom Scrollbar for Luxury Aesthetics */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #383838;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C5A15B;
+}
+
+/* Image masking & clip reveals */
+.clip-reveal {
+  clip-path: polygon(0 0, 100 0, 100 100%, 0% 100%);
+}
+
+/* Glass & Blur Accents */
+.backdrop-glass-dark {
+  background: rgba(20, 20, 20, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(197, 161, 91, 0.12);
+}
+
+.backdrop-glass-light {
+  background: rgba(245, 240, 230, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(197, 161, 91, 0.2);
+}
+
+/* Gold Shimmer Button Effect */
+.btn-gold {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #C5A15B 0%, #D8B672 50%, #9E7B36 100%);
+  color: #141414;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(197, 161, 91, 0.35);
+}
+
+.btn-outline-gold {
+  border: 1px solid #C5A15B;
+  color: #F5F0E6;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-gold:hover {
+  background: rgba(197, 161, 91, 0.1);
+  color: #DFC488;
+  border-color: #DFC488;
+}
+
+/* Lenis smooth scroll */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
