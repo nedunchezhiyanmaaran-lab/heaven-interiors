@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { AdminHeader } from '@/components/admin/AdminHeader';
+import Image from 'next/image';
 import {
   useProjects,
   useVideos,
@@ -11,27 +11,30 @@ import {
 } from '@/hooks/useDataServices';
 import { projectService } from '@/services/project.service';
 import { enquiryService } from '@/services/enquiry.service';
+import { useAdminUI } from '@/app/admin/layout';
 import {
-  FolderKanban,
-  Film,
   Layers,
+  PlayCircle,
+  LayoutGrid,
   Mail,
   Plus,
-  Eye,
-  CheckCircle2,
-  Clock,
-  ArrowUpRight,
-  TrendingUp,
-  Sliders
+  ArrowRight,
+  ExternalLink,
+  User,
+  ChevronDown,
+  Sliders,
+  MoreHorizontal,
+  Menu
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
+  const { toggleMobileNav } = useAdminUI();
   const { projects, refresh: refreshProjects } = useProjects();
   const { videos } = useVideos();
   const { materials } = useMaterials();
   const { enquiries, refresh: refreshEnquiries } = useEnquiries();
 
-  // Dynamic calculations
+  // Dynamic calculations from LocalStorage
   const totalProjects = projects.length;
   const publishedProjects = projects.filter((p) => p.isPublished).length;
   const draftProjects = totalProjects - publishedProjects;
@@ -40,298 +43,410 @@ export default function AdminDashboardPage() {
   const totalEnquiries = enquiries.length;
   const newEnquiriesCount = enquiries.filter((e) => e.status === 'new').length;
 
-  const handleTogglePublish = async (id: string) => {
-    await projectService.togglePublish(id);
-    refreshProjects();
-  };
-
-  const handleEnquiryStatus = async (id: string, status: any) => {
+  const handleEnquiryStatus = async (id: string, status: 'new' | 'contacted' | 'completed') => {
     await enquiryService.updateStatus(id, status);
     refreshEnquiries();
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  };
+
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen">
-      <AdminHeader
-        title="Studio CMS Overview"
-        subtitle="Real-time synchronized atelier content metrics and active client enquiries"
-        actionButton={
+    <div className="flex-1 flex flex-col bg-[#F5F0E6] min-h-screen relative overflow-x-hidden font-sans">
+      {/* Subtle architectural ambient shadow at the top right */}
+      <div className="absolute top-0 right-0 w-[500px] h-[300px] pointer-events-none opacity-20 overflow-hidden hidden md:block">
+        <Image
+          src="/reference_assets/photo_handover_hd.jpg"
+          alt="Architectural Ambient Light"
+          fill
+          className="object-cover object-top filter blur-sm"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#F5F0E6]/80 to-[#F5F0E6]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#F5F0E6]/80 to-[#F5F0E6]" />
+      </div>
+
+      {/* Top Header / Welcome Bar */}
+      <div className="relative z-10 px-6 sm:px-10 pt-8 pb-6 border-b border-[#E5DEC9] flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleMobileNav}
+            className="lg:hidden p-2 rounded-lg text-[#141414] hover:bg-[#E5DEC9]/50 transition-colors focus:outline-none"
+            aria-label="Toggle navigation menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C5A15B] mb-1">
+              STUDIO CMS
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#141414] tracking-tight">
+              Welcome back, Studio Principal
+            </h1>
+            <p className="text-xs sm:text-sm text-[#78726A] font-sans mt-1">
+              Manage your projects, media, materials and client enquiries.
+            </p>
+          </div>
+        </div>
+
+        {/* Right Header Actions */}
+        <div className="flex items-center gap-3 self-start md:self-center">
           <Link
             href="/admin/projects/new"
-            className="btn-gold px-4 py-2 rounded-lg text-xs uppercase tracking-wider font-sans flex items-center gap-1.5"
+            className="bg-[#141414] hover:bg-[#C5A15B] text-[#FAF7F0] hover:text-[#141414] px-4 sm:px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2 shadow-sm transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Create Project</span>
           </Link>
-        }
-      />
 
-      <div className="p-8 space-y-8 max-w-7xl w-full mx-auto">
-        {/* Metric Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Projects Metric */}
-          <div className="bg-[#181818] border border-white/10 rounded-xl p-5 space-y-3">
-            <div className="flex items-center justify-between text-[#C5A15B]">
-              <span className="text-xs uppercase tracking-wider font-sans font-medium">
-                Portfolio Projects
-              </span>
-              <FolderKanban className="w-4 h-4" />
-            </div>
-            <div className="text-3xl font-serif font-light text-[#F5F0E6]">
-              {totalProjects}
-            </div>
-            <div className="flex items-center gap-3 text-[11px] text-[#E9E5DE]/60 font-sans">
-              <span className="text-emerald-400 font-medium">{publishedProjects} Published</span>
-              <span>•</span>
-              <span className="text-amber-400">{draftProjects} Drafts</span>
-            </div>
-          </div>
+          <Link
+            href="/"
+            target="_blank"
+            className="border border-[#E5DEC9] bg-[#FFFFFF] hover:border-[#C5A15B]/50 hover:text-[#C5A15B] text-[#141414] px-3.5 py-2.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm transition-all"
+          >
+            <span>Live Site</span>
+            <ExternalLink className="w-3.5 h-3.5 text-[#78726A]" />
+          </Link>
 
-          {/* Videos Metric */}
-          <div className="bg-[#181818] border border-white/10 rounded-xl p-5 space-y-3">
-            <div className="flex items-center justify-between text-[#C5A15B]">
-              <span className="text-xs uppercase tracking-wider font-sans font-medium">
-                Documentary Films
-              </span>
-              <Film className="w-4 h-4" />
+          {/* User Profile Pill */}
+          <div className="flex items-center gap-2.5 pl-3 border-l border-[#E5DEC9]">
+            <div className="w-8 h-8 rounded-full bg-[#C5A15B]/15 text-[#C5A15B] flex items-center justify-center font-medium">
+              <User className="w-4 h-4" />
             </div>
-            <div className="text-3xl font-serif font-light text-[#F5F0E6]">
-              {totalVideos}
+            <div className="hidden xl:block text-left">
+              <div className="text-xs font-semibold text-[#141414] leading-tight">
+                Studio Principal
+              </div>
+              <div className="text-[9px] text-[#78726A] uppercase font-semibold tracking-wider">
+                STUDIO PRINCIPAL
+              </div>
             </div>
-            <div className="text-[11px] text-[#E9E5DE]/60 font-sans">
-              {videos.filter((v) => v.isPublished).length} Active in Public Showcase
-            </div>
-          </div>
-
-          {/* Materials Metric */}
-          <div className="bg-[#181818] border border-white/10 rounded-xl p-5 space-y-3">
-            <div className="flex items-center justify-between text-[#C5A15B]">
-              <span className="text-xs uppercase tracking-wider font-sans font-medium">
-                Plywood & Materials
-              </span>
-              <Layers className="w-4 h-4" />
-            </div>
-            <div className="text-3xl font-serif font-light text-[#F5F0E6]">
-              {totalMaterials}
-            </div>
-            <div className="text-[11px] text-[#E9E5DE]/60 font-sans">
-              Substrates & Veneer Catalogue
-            </div>
-          </div>
-
-          {/* Enquiries Metric */}
-          <div className="bg-[#181818] border border-white/10 rounded-xl p-5 space-y-3">
-            <div className="flex items-center justify-between text-[#C5A15B]">
-              <span className="text-xs uppercase tracking-wider font-sans font-medium">
-                Client Enquiries
-              </span>
-              <Mail className="w-4 h-4" />
-            </div>
-            <div className="text-3xl font-serif font-light text-[#F5F0E6]">
-              {totalEnquiries}
-            </div>
-            <div className="flex items-center gap-2 text-[11px] font-sans">
-              <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-medium">
-                {newEnquiriesCount} Pending Review
-              </span>
-            </div>
+            <ChevronDown className="w-3.5 h-3.5 text-[#78726A] hidden xl:block" />
           </div>
         </div>
+      </div>
 
-        {/* Quick Action Shortcuts */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* Main Dashboard Canvas */}
+      <div className="p-6 sm:p-10 space-y-6 sm:space-y-7 max-w-[1500px] w-full mx-auto relative z-10">
+        {/* ROW 1: 4 STAT CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {/* Card 1: Portfolio Projects with warm architectural photo background */}
+          <div className="relative rounded-2xl overflow-hidden p-5 shadow-sm min-h-[145px] flex flex-col justify-between text-[#FAF7F0] bg-[#141414] border border-[#222222]">
+            <Image
+              src="/brand/curtain_texture.jpg"
+              alt="Architectural Portfolio"
+              fill
+              className="object-cover opacity-30 transform scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-[#141414]/60 to-black/40" />
+
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-sans font-medium text-[#FAF7F0]/90">
+                <Layers className="w-4 h-4 text-[#DFC488]" />
+                <span>Portfolio Projects</span>
+              </div>
+            </div>
+
+            <div className="relative z-10">
+              <div className="text-4xl font-extrabold tracking-tight text-[#FAF7F0]">
+                {totalProjects}
+              </div>
+              <div className="text-xs text-[#FAF7F0]/75 font-sans mt-1">
+                {publishedProjects} Published · {draftProjects} Drafts
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Documentary Films */}
+          <Link
+            href="/admin/videos"
+            className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl p-5 shadow-sm flex flex-col justify-between min-h-[145px] group hover:border-[#C5A15B] hover:shadow-md transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-sans font-medium text-[#141414]">
+                <PlayCircle className="w-4 h-4 text-[#78726A]" />
+                <span>Documentary Films</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#78726A] group-hover:translate-x-0.5 group-hover:text-[#C5A15B] transition-all" />
+            </div>
+
+            <div>
+              <div className="text-4xl font-extrabold tracking-tight text-[#141414]">
+                {totalVideos}
+              </div>
+              <div className="text-xs text-[#78726A] font-sans mt-1">
+                {videos.filter((v) => v.isPublished).length} Active in Public Showcase
+              </div>
+            </div>
+          </Link>
+
+          {/* Card 3: Plywood & Materials */}
+          <Link
+            href="/admin/materials"
+            className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl p-5 shadow-sm flex flex-col justify-between min-h-[145px] group hover:border-[#C5A15B] hover:shadow-md transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-sans font-medium text-[#141414]">
+                <LayoutGrid className="w-4 h-4 text-[#78726A]" />
+                <span>Plywood & Materials</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#78726A] group-hover:translate-x-0.5 group-hover:text-[#C5A15B] transition-all" />
+            </div>
+
+            <div>
+              <div className="text-4xl font-extrabold tracking-tight text-[#141414]">
+                {totalMaterials}
+              </div>
+              <div className="text-xs text-[#78726A] font-sans mt-1">
+                Substrates & Veneer Catalogue
+              </div>
+            </div>
+          </Link>
+
+          {/* Card 4: Client Enquiries */}
+          <Link
+            href="/admin/enquiries"
+            className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl p-5 shadow-sm flex flex-col justify-between min-h-[145px] group hover:border-[#C5A15B] hover:shadow-md transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-sans font-medium text-[#141414]">
+                <Mail className="w-4 h-4 text-[#78726A]" />
+                <span>Client Enquiries</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#78726A] group-hover:translate-x-0.5 group-hover:text-[#C5A15B] transition-all" />
+            </div>
+
+            <div>
+              <div className="text-4xl font-extrabold tracking-tight text-[#141414]">
+                {totalEnquiries}
+              </div>
+              <div className="mt-1">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#C5A15B]/15 text-[#9E7B36] border border-[#C5A15B]/30 text-xs font-semibold">
+                  {newEnquiriesCount} Pending Review
+                </span>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        {/* ROW 2: 4 QUICK ACTION BUTTONS */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <Link
             href="/admin/projects/new"
-            className="p-4 bg-[#181818] border border-white/10 hover:border-[#C5A15B]/50 rounded-lg flex items-center gap-3 group transition-colors"
+            className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-xl p-3 sm:p-3.5 flex items-center justify-center gap-2.5 text-xs font-medium text-[#141414] hover:border-[#C5A15B] hover:text-[#C5A15B] hover:shadow-sm transition-all group"
           >
-            <div className="w-8 h-8 rounded-full bg-[#C5A15B]/20 text-[#C5A15B] flex items-center justify-center group-hover:bg-[#C5A15B] group-hover:text-[#141414] transition-colors">
-              <Plus className="w-4 h-4" />
+            <div className="w-6 h-6 rounded-full bg-[#F5F0E6] flex items-center justify-center text-[#141414] group-hover:bg-[#C5A15B]/20 group-hover:text-[#C5A15B] transition-colors">
+              <Plus className="w-3.5 h-3.5" />
             </div>
-            <div className="text-xs font-medium text-[#F5F0E6]">New Project</div>
+            <span>New Project</span>
           </Link>
 
           <Link
             href="/admin/videos"
-            className="p-4 bg-[#181818] border border-white/10 hover:border-[#C5A15B]/50 rounded-lg flex items-center gap-3 group transition-colors"
+            className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-xl p-3 sm:p-3.5 flex items-center justify-center gap-2.5 text-xs font-medium text-[#141414] hover:border-[#C5A15B] hover:text-[#C5A15B] hover:shadow-sm transition-all group"
           >
-            <div className="w-8 h-8 rounded-full bg-[#C5A15B]/20 text-[#C5A15B] flex items-center justify-center group-hover:bg-[#C5A15B] group-hover:text-[#141414] transition-colors">
-              <Film className="w-4 h-4" />
+            <div className="w-6 h-6 rounded-full bg-[#F5F0E6] flex items-center justify-center text-[#141414] group-hover:bg-[#C5A15B]/20 group-hover:text-[#C5A15B] transition-colors">
+              <PlayCircle className="w-3.5 h-3.5" />
             </div>
-            <div className="text-xs font-medium text-[#F5F0E6]">Manage Films</div>
+            <span>Manage Films</span>
           </Link>
 
           <Link
             href="/admin/materials"
-            className="p-4 bg-[#181818] border border-white/10 hover:border-[#C5A15B]/50 rounded-lg flex items-center gap-3 group transition-colors"
+            className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-xl p-3 sm:p-3.5 flex items-center justify-center gap-2.5 text-xs font-medium text-[#141414] hover:border-[#C5A15B] hover:text-[#C5A15B] hover:shadow-sm transition-all group"
           >
-            <div className="w-8 h-8 rounded-full bg-[#C5A15B]/20 text-[#C5A15B] flex items-center justify-center group-hover:bg-[#C5A15B] group-hover:text-[#141414] transition-colors">
-              <Layers className="w-4 h-4" />
+            <div className="w-6 h-6 rounded-full bg-[#F5F0E6] flex items-center justify-center text-[#141414] group-hover:bg-[#C5A15B]/20 group-hover:text-[#C5A15B] transition-colors">
+              <LayoutGrid className="w-3.5 h-3.5" />
             </div>
-            <div className="text-xs font-medium text-[#F5F0E6]">Add Material</div>
+            <span>Add Material</span>
           </Link>
 
           <Link
             href="/admin/website-content"
-            className="p-4 bg-[#181818] border border-white/10 hover:border-[#C5A15B]/50 rounded-lg flex items-center gap-3 group transition-colors"
+            className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-xl p-3 sm:p-3.5 flex items-center justify-center gap-2.5 text-xs font-medium text-[#141414] hover:border-[#C5A15B] hover:text-[#C5A15B] hover:shadow-sm transition-all group"
           >
-            <div className="w-8 h-8 rounded-full bg-[#C5A15B]/20 text-[#C5A15B] flex items-center justify-center group-hover:bg-[#C5A15B] group-hover:text-[#141414] transition-colors">
-              <Sliders className="w-4 h-4" />
+            <div className="w-6 h-6 rounded-full bg-[#F5F0E6] flex items-center justify-center text-[#141414] group-hover:bg-[#C5A15B]/20 group-hover:text-[#C5A15B] transition-colors">
+              <Sliders className="w-3.5 h-3.5" />
             </div>
-            <div className="text-xs font-medium text-[#F5F0E6]">Edit Copy / Hero</div>
+            <span>Edit Copy / Hero</span>
           </Link>
         </div>
 
-        {/* Two-Column Grid: Recent Enquiries & Recent Projects */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Recent Enquiries (7 cols) */}
-          <div className="lg:col-span-7 bg-[#181818] border border-white/10 rounded-xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#C5A15B]" />
-                <h3 className="text-sm font-sans uppercase tracking-wider text-[#F5F0E6] font-medium">
-                  Recent Commission Enquiries
-                </h3>
+        {/* ROW 3: TWO MAIN SECTIONS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-7">
+          {/* LEFT: Recent Commission Enquiries */}
+          <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-[#E5DEC9]/80">
+                <h2 className="font-bold text-base sm:text-lg text-[#141414] tracking-tight flex items-center gap-2.5">
+                  <Mail className="w-4 h-4 text-[#78726A]" />
+                  <span>Recent Commission Enquiries</span>
+                </h2>
+                <Link
+                  href="/admin/enquiries"
+                  className="text-xs text-[#78726A] hover:text-[#141414] flex items-center gap-1 font-medium transition-colors"
+                >
+                  <span>View All ({totalEnquiries})</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
-              <Link
-                href="/admin/enquiries"
-                className="text-xs text-[#C5A15B] hover:underline"
-              >
-                View All ({totalEnquiries}) →
-              </Link>
-            </div>
 
-            {enquiries.length === 0 ? (
-              <div className="py-10 text-center text-xs text-[#E9E5DE]/50 font-sans">
-                No client enquiries logged yet. Submissions on the contact form will appear here live.
-              </div>
-            ) : (
-              <div className="divide-y divide-white/5">
-                {enquiries.slice(0, 4).map((enq) => (
-                  <div key={enq.id} className="py-4 space-y-2">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="text-sm font-medium text-[#F5F0E6] flex items-center gap-2">
-                          <span>{enq.name}</span>
-                          <span
-                            className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded ${
-                              enq.status === 'new'
-                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                : enq.status === 'contacted'
-                                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            }`}
-                          >
-                            {enq.status}
-                          </span>
+              {/* Enquiry List */}
+              <div className="divide-y divide-[#E5DEC9]/60">
+                {enquiries.slice(0, 3).map((enquiry) => (
+                  <div key={enquiry.id} className="py-4.5 space-y-2.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#C5A15B]/20 text-[#9E7B36] font-bold text-xs flex items-center justify-center flex-shrink-0">
+                          {getInitials(enquiry.name)}
                         </div>
-                        <div className="text-xs text-[#C5A15B] font-sans mt-0.5">
-                          {enq.projectType} • {enq.budgetRange}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-sm text-[#141414]">
+                              {enquiry.name}
+                            </span>
+                            {enquiry.status === 'new' && (
+                              <span className="bg-[#C5A15B]/20 text-[#9E7B36] border border-[#C5A15B]/30 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">
+                                NEW
+                              </span>
+                            )}
+                            {enquiry.status === 'contacted' && (
+                              <span className="bg-[#E5DEC9]/80 text-[#78726A] px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">
+                                CONTACTED
+                              </span>
+                            )}
+                            {enquiry.status === 'completed' && (
+                              <span className="bg-[#2E7D5A]/15 text-[#2E7D5A] border border-[#2E7D5A]/30 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">
+                                COMPLETED
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-[#78726A] font-sans mt-0.5">
+                            {enquiry.projectType || 'Interior Commission'} · {enquiry.budgetRange || 'Custom Budget'}
+                          </div>
                         </div>
                       </div>
 
-                      <div className="text-[11px] text-[#E9E5DE]/40 font-mono">
-                        {new Date(enq.createdAt).toLocaleDateString()}
+                      <div className="text-[11px] text-[#78726A] font-sans flex-shrink-0">
+                        {new Date(enquiry.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
                       </div>
                     </div>
 
-                    <p className="text-xs text-[#E9E5DE]/75 font-sans line-clamp-2">
-                      {enq.message}
+                    <p className="text-xs text-[#141414]/80 leading-relaxed font-sans line-clamp-2 pl-11">
+                      {enquiry.message}
                     </p>
 
-                    <div className="flex items-center gap-2 pt-1">
-                      <span className="text-[10px] text-[#E9E5DE]/40">Quick Status:</span>
-                      <button
-                        onClick={() => handleEnquiryStatus(enq.id, 'new')}
-                        className={`text-[10px] px-2 py-0.5 rounded border ${
-                          enq.status === 'new'
-                            ? 'border-amber-400 text-amber-300 font-bold'
-                            : 'border-white/10 text-white/50 hover:text-white'
-                        }`}
-                      >
-                        New
-                      </button>
-                      <button
-                        onClick={() => handleEnquiryStatus(enq.id, 'contacted')}
-                        className={`text-[10px] px-2 py-0.5 rounded border ${
-                          enq.status === 'contacted'
-                            ? 'border-blue-400 text-blue-300 font-bold'
-                            : 'border-white/10 text-white/50 hover:text-white'
-                        }`}
-                      >
-                        Contacted
-                      </button>
-                      <button
-                        onClick={() => handleEnquiryStatus(enq.id, 'completed')}
-                        className={`text-[10px] px-2 py-0.5 rounded border ${
-                          enq.status === 'completed'
-                            ? 'border-emerald-400 text-emerald-300 font-bold'
-                            : 'border-white/10 text-white/50 hover:text-white'
-                        }`}
-                      >
-                        Completed
-                      </button>
+                    {/* Quick Status Buttons */}
+                    <div className="flex items-center gap-2 pl-11 pt-1">
+                      {(['new', 'contacted', 'completed'] as const).map((st) => (
+                        <button
+                          key={st}
+                          onClick={() => handleEnquiryStatus(enquiry.id, st)}
+                          className={`px-3 py-1 rounded-full text-[11px] font-sans capitalize transition-all ${
+                            enquiry.status === st
+                              ? 'bg-[#C5A15B] text-[#141414] border border-[#C5A15B] font-semibold shadow-xs'
+                              : 'bg-white border border-[#E5DEC9] text-[#78726A] hover:text-[#141414] hover:border-[#C5A15B]/40'
+                          }`}
+                        >
+                          {st}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 ))}
+
+                {enquiries.length === 0 && (
+                  <div className="py-8 text-center text-xs text-[#78726A]">
+                    No client enquiries yet.
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Portfolio Projects (5 cols) */}
-          <div className="lg:col-span-5 bg-[#181818] border border-white/10 rounded-xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <FolderKanban className="w-4 h-4 text-[#C5A15B]" />
-                <h3 className="text-sm font-sans uppercase tracking-wider text-[#F5F0E6] font-medium">
-                  Portfolio Works
-                </h3>
-              </div>
-              <Link
-                href="/admin/projects"
-                className="text-xs text-[#C5A15B] hover:underline"
-              >
-                Manage All →
-              </Link>
-            </div>
-
-            <div className="divide-y divide-white/5">
-              {projects.slice(0, 5).map((proj) => (
-                <div
-                  key={proj.id}
-                  className="py-3 flex items-center justify-between gap-3 text-xs font-sans"
+          {/* RIGHT: Portfolio Works */}
+          <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-[#E5DEC9]/80">
+                <h2 className="font-bold text-base sm:text-lg text-[#141414] tracking-tight flex items-center gap-2.5">
+                  <Layers className="w-4 h-4 text-[#78726A]" />
+                  <span>Portfolio Works</span>
+                </h2>
+                <Link
+                  href="/admin/projects"
+                  className="text-xs text-[#78726A] hover:text-[#141414] flex items-center gap-1 font-medium transition-colors"
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium text-[#F5F0E6] truncate hover:text-[#C5A15B]">
-                      <Link href={`/admin/projects/${proj.id}`}>{proj.title}</Link>
+                  <span>Manage All</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              {/* Project List */}
+              <div className="divide-y divide-[#E5DEC9]/60">
+                {projects.slice(0, 4).map((project) => (
+                  <div key={project.id} className="py-3.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="w-16 h-12 rounded-lg overflow-hidden relative flex-shrink-0 border border-[#E5DEC9] bg-[#F5F0E6]">
+                        <Image
+                          src={project.coverImage || '/reference_assets/photo_handover_hd.jpg'}
+                          alt={project.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <Link
+                          href={`/admin/projects/${project.id}`}
+                          className="font-semibold text-sm text-[#141414] hover:text-[#C5A15B] transition-colors truncate block"
+                        >
+                          {project.title}
+                        </Link>
+                        <div className="text-xs text-[#78726A] font-sans truncate mt-0.5">
+                          {project.category} · {project.location}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-[11px] text-[#E9E5DE]/50">
-                      {proj.category} • {proj.location}
+
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      {project.isPublished ? (
+                        <span className="bg-[#2E7D5A]/15 text-[#2E7D5A] border border-[#2E7D5A]/30 rounded-full px-2.5 py-0.5 text-[10px] font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D5A]" />
+                          <span>LIVE</span>
+                        </span>
+                      ) : (
+                        <span className="bg-[#C5A15B]/15 text-[#9E7B36] border border-[#C5A15B]/30 rounded-full px-2.5 py-0.5 text-[10px] font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#C5A15B]" />
+                          <span>DRAFT</span>
+                        </span>
+                      )}
+
+                      <Link
+                        href={`/admin/projects/${project.id}`}
+                        className="p-1.5 text-[#78726A] hover:text-[#C5A15B] hover:bg-[#F5F0E6] rounded transition-colors"
+                        title="Edit project"
+                      >
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Link>
                     </div>
                   </div>
+                ))}
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => handleTogglePublish(proj.id)}
-                      className={`px-2 py-1 rounded text-[10px] uppercase font-bold tracking-wider ${
-                        proj.isPublished
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                          : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-                      }`}
-                    >
-                      {proj.isPublished ? 'Live' : 'Draft'}
-                    </button>
-
-                    <Link
-                      href={`/projects/${proj.slug}`}
-                      target="_blank"
-                      className="p-1 text-white/50 hover:text-[#C5A15B]"
-                      title="View on public site"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                    </Link>
+                {projects.length === 0 && (
+                  <div className="py-8 text-center text-xs text-[#78726A]">
+                    No portfolio works found.
                   </div>
-                </div>
-              ))}
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -339,4 +454,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-

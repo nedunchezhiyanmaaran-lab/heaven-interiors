@@ -214,142 +214,157 @@ export default function AdminMaterialsPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen">
+    <div className="flex-1 flex flex-col bg-[#F5F0E6] min-h-screen font-sans">
       <AdminHeader
-        title="Plywood & Materials Management"
+        title="Plywood & Materials"
         subtitle="Curate technical timber substrates, calibrated ply, architectural veneers, and finishes"
         actionButton={
           <button
             onClick={openCreateModal}
-            className="btn-gold px-4 py-2 rounded-lg text-xs uppercase tracking-wider font-sans flex items-center gap-1.5"
+            className="bg-[#141414] hover:bg-[#C5A15B] text-[#FAF7F0] hover:text-[#141414] px-4 sm:px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2 shadow-sm transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add New Material</span>
+            <span>Add Material</span>
           </button>
         }
       />
 
-      <div className="p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div className="p-6 sm:p-10 space-y-6 max-w-[1500px] w-full mx-auto">
         {/* Table / Catalogue View */}
-        <div className="bg-[#181818] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-white/10 text-[11px] uppercase tracking-wider text-[#C5A15B] bg-[#141414]/60">
-                <th className="py-3.5 px-4 font-medium">Material & Brand</th>
-                <th className="py-3.5 px-4 font-medium hidden sm:table-cell">Category</th>
-                <th className="py-3.5 px-4 font-medium hidden md:table-cell">Thickness & Size</th>
-                <th className="py-3.5 px-4 font-medium">Status</th>
-                <th className="py-3.5 px-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-xs font-sans">
-              {materials.map((mat) => (
-                <tr key={mat.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative w-12 h-12 rounded overflow-hidden bg-[#242424] flex-shrink-0 border border-white/10">
-                        <Image
-                          src={mat.coverImage || '/brand/logo.png'}
-                          alt={mat.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-medium text-[#F5F0E6] truncate">{mat.name}</div>
-                        <div className="text-[10px] text-[#C5A15B] uppercase tracking-wider">
-                          {mat.brand}
+        <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#E5DEC9] text-[11px] uppercase tracking-wider text-[#78726A] bg-[#F5F0E6]/60 font-semibold">
+                  <th className="py-3.5 px-5">Material & Brand</th>
+                  <th className="py-3.5 px-5 hidden sm:table-cell">Category</th>
+                  <th className="py-3.5 px-5 hidden md:table-cell">Thickness & Size</th>
+                  <th className="py-3.5 px-5">Status</th>
+                  <th className="py-3.5 px-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E5DEC9]/70 text-xs font-sans">
+                {materials.map((mat) => (
+                  <tr key={mat.id} className="hover:bg-[#F5F0E6]/40 transition-colors">
+                    <td className="py-4 px-5">
+                      <div className="flex items-center gap-3.5">
+                        <div className="relative w-14 h-11 rounded-lg overflow-hidden bg-[#F5F0E6] flex-shrink-0 border border-[#E5DEC9]">
+                          <Image
+                            src={mat.coverImage || '/brand/logo.png'}
+                            alt={mat.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-sm text-[#141414]">{mat.name}</div>
+                          <div className="text-[11px] text-[#C5A15B] font-semibold uppercase tracking-wider">
+                            {mat.brand}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  <td className="py-3.5 px-4 hidden sm:table-cell">
-                    <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-[#E9E5DE]/80 border border-white/5">
-                      {mat.category}
-                    </span>
-                  </td>
+                    <td className="py-4 px-5 hidden sm:table-cell text-[#78726A]">
+                      <span className="px-2.5 py-1 bg-[#F5F0E6] border border-[#E5DEC9] rounded-full text-[11px]">
+                        {mat.category}
+                      </span>
+                    </td>
 
-                  <td className="py-3.5 px-4 hidden md:table-cell text-[#E9E5DE]/70">
-                    <div>{mat.thickness}</div>
-                    <div className="text-[10px] text-[#E9E5DE]/40">{mat.dimensions}</div>
-                  </td>
+                    <td className="py-4 px-5 hidden md:table-cell text-[#78726A]">
+                      <div>{mat.thickness}</div>
+                      <div className="text-[11px] text-[#78726A]/70">{mat.dimensions}</div>
+                    </td>
 
-                  <td className="py-3.5 px-4">
-                    <button
-                      onClick={() => handleTogglePublish(mat.id)}
-                      className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        mat.isPublished
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                          : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-                      }`}
-                    >
-                      {mat.isPublished ? 'Published' : 'Draft'}
-                    </button>
-                  </td>
-
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Link
-                        href={`/materials/${mat.slug}`}
-                        target="_blank"
-                        className="p-1.5 text-white/50 hover:text-[#C5A15B] rounded"
-                        title="View Public Dossier"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Link>
-
+                    <td className="py-4 px-5">
                       <button
-                        onClick={() => openEditModal(mat)}
-                        className="p-1.5 text-white/50 hover:text-white rounded"
-                        title="Edit Material"
+                        onClick={() => handleTogglePublish(mat.id)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${
+                          mat.isPublished
+                            ? 'bg-[#2E7D5A]/15 text-[#2E7D5A] border border-[#2E7D5A]/30 hover:bg-[#2E7D5A]/20'
+                            : 'bg-[#C5A15B]/15 text-[#9E7B36] border border-[#C5A15B]/30 hover:bg-[#C5A15B]/20'
+                        }`}
                       >
-                        <Edit className="w-4 h-4" />
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            mat.isPublished ? 'bg-[#2E7D5A]' : 'bg-[#C5A15B]'
+                          }`}
+                        />
+                        <span>{mat.isPublished ? 'LIVE' : 'DRAFT'}</span>
                       </button>
+                    </td>
 
-                      <button
-                        onClick={() => handleDelete(mat.id)}
-                        className="p-1.5 text-red-400/60 hover:text-red-400 rounded"
-                        title="Delete Material"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <td className="py-4 px-5 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Link
+                          href={`/materials/${mat.slug}`}
+                          target="_blank"
+                          className="p-1.5 text-[#78726A] hover:text-[#C5A15B] hover:bg-[#F5F0E6] rounded-lg transition-colors"
+                          title="View Public Dossier"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
+
+                        <button
+                          onClick={() => openEditModal(mat)}
+                          className="p-1.5 text-[#78726A] hover:text-[#C5A15B] hover:bg-[#F5F0E6] rounded-lg transition-colors"
+                          title="Edit specification"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(mat.id)}
+                          className="p-1.5 text-[#78726A] hover:text-[#B43A3A] hover:bg-red-50 rounded-lg transition-colors"
+                          title="Remove material"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
+                {materials.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-16 text-center text-xs text-[#78726A]">
+                      No materials found in the atelier catalogue.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       {/* Material Modal Form */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-[#181818] border border-white/15 rounded-xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <h3 className="text-lg font-serif text-[#F5F0E6]">
-                {editingMaterial ? 'Edit Material Specification' : 'Add New Material Specification'}
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl space-y-5 my-8">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E5DEC9]">
+              <h2 className="font-bold text-lg text-[#141414]">
+                {editingMaterial ? 'Edit Material Specification' : 'Add Material Specification'}
+              </h2>
               <button
                 onClick={() => setModalOpen(false)}
-                className="text-white/60 hover:text-white"
+                className="p-1.5 text-[#78726A] hover:text-[#141414] rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {error && (
-              <div className="p-3 bg-red-950/40 border border-red-800 text-red-200 text-xs rounded flex items-center gap-2">
+              <div className="p-3 bg-red-50 border border-red-200 text-[#B43A3A] text-xs rounded-xl flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSave} className="space-y-6 font-sans">
+            <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
                     Material Name *
                   </label>
                   <input
@@ -357,13 +372,13 @@ export default function AdminMaterialsPage() {
                     required
                     value={name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    placeholder="e.g. Platinum Calibrated BWP 710 Marine Ply"
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none"
+                    placeholder="e.g. Gurjan Core Marine BWP 710"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
                     Brand / Manufacturer *
                   </label>
                   <input
@@ -371,149 +386,107 @@ export default function AdminMaterialsPage() {
                     required
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
-                    placeholder="e.g. CenturyPly / Club Platinum"
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none"
+                    placeholder="e.g. CenturyPly / Greenlam"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
                     Category
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                   >
-                    {MATERIAL_CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
+                    {MATERIAL_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
                       </option>
                     ))}
-                    <option value="Other">Other (Custom)</option>
                   </select>
                 </div>
 
-                {category === 'Other' && (
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                      Custom Category Name
-                    </label>
-                    <input
-                      type="text"
-                      value={customCategory}
-                      onChange={(e) => setCustomCategory(e.target.value)}
-                      placeholder="e.g. Acoustic Insulation"
-                      className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none"
-                    />
-                  </div>
-                )}
-
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                    Thickness Options
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                    Thickness
                   </label>
                   <input
                     type="text"
                     value={thickness}
                     onChange={(e) => setThickness(e.target.value)}
-                    placeholder="18mm / 19mm"
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none"
+                    placeholder="e.g. 18mm / 19mm"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                    Dimensions
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                    Finish / Texture
                   </label>
                   <input
                     type="text"
-                    value={dimensions}
-                    onChange={(e) => setDimensions(e.target.value)}
-                    placeholder="8ft x 4ft"
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none"
+                    value={finishType}
+                    onChange={(e) => setFinishType(e.target.value)}
+                    placeholder="e.g. Calibrated Sanded"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                  Finish / Type
-                </label>
-                <input
-                  type="text"
-                  value={finishType}
-                  onChange={(e) => setFinishType(e.target.value)}
-                  placeholder="Double-Sided Calibrated Sanded Smooth (120 Grit)"
-                  className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                  Short Description (Catalogue Card)
+                <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                  Summary / Technical Overview
                 </label>
                 <textarea
                   rows={2}
                   value={shortDesc}
                   onChange={(e) => setShortDesc(e.target.value)}
-                  placeholder="Concise overview of engineering density and applications..."
-                  className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none resize-none"
+                  placeholder="Structural boiling-water-proof calibrated marine plywood engineered for coastal joinery..."
+                  className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                 />
               </div>
 
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                  Full Description & Specifications
-                </label>
-                <textarea
-                  rows={3}
-                  value={fullDesc}
-                  onChange={(e) => setFullDesc(e.target.value)}
-                  placeholder="Detailed architectural description..."
-                  className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] focus:border-[#C5A15B] focus:outline-none"
-                />
-              </div>
-
-              {/* Specifications Matrix Builder */}
-              <div className="space-y-3 p-4 bg-[#141414] rounded-lg border border-white/10">
+              {/* Technical Specifications Key-Value */}
+              <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] uppercase tracking-wider text-[#C5A15B] font-medium">
-                    Technical Specifications Matrix
-                  </span>
+                  <label className="text-[11px] uppercase tracking-wider text-[#78726A] font-semibold">
+                    Technical Specifications
+                  </label>
                   <button
                     type="button"
                     onClick={addSpecRow}
-                    className="text-[11px] text-[#C5A15B] hover:underline flex items-center gap-1"
+                    className="text-xs text-[#C5A15B] hover:text-[#141414] flex items-center gap-1 font-semibold"
                   >
-                    <Plus className="w-3 h-3" />
+                    <Plus className="w-3.5 h-3.5" />
                     <span>Add Spec Row</span>
                   </button>
                 </div>
 
                 <div className="space-y-2">
-                  {specs.map((sp, idx) => (
+                  {specs.map((row, idx) => (
                     <div key={idx} className="flex items-center gap-2">
                       <input
                         type="text"
-                        value={sp.key}
+                        value={row.key}
                         onChange={(e) => updateSpecRow(idx, 'key', e.target.value)}
-                        placeholder="Property (e.g. Density)"
-                        className="flex-1 bg-[#1c1c1c] border border-white/15 rounded px-2.5 py-1.5 text-xs text-white"
+                        placeholder="Feature / Metric (e.g. Glue Line)"
+                        className="flex-1 bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-lg px-3 py-1.5 text-xs text-[#141414]"
                       />
                       <input
                         type="text"
-                        value={sp.value}
+                        value={row.value}
                         onChange={(e) => updateSpecRow(idx, 'value', e.target.value)}
-                        placeholder="Value (e.g. > 860 kg/m³)"
-                        className="flex-1 bg-[#1c1c1c] border border-white/15 rounded px-2.5 py-1.5 text-xs text-white"
+                        placeholder="Rating / Spec (e.g. Unextended Phenolic Resin)"
+                        className="flex-1 bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-lg px-3 py-1.5 text-xs text-[#141414]"
                       />
                       <button
                         type="button"
                         onClick={() => removeSpecRow(idx)}
-                        className="p-1 text-red-400 hover:text-red-300"
+                        className="p-1.5 text-[#78726A] hover:text-[#B43A3A]"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -522,50 +495,54 @@ export default function AdminMaterialsPage() {
                 </div>
               </div>
 
-              {/* Photos */}
-              <ImageUploader
-                images={galleryImages}
-                onChange={setGalleryImages}
-                allowMultiple={true}
-                maxFiles={10}
-                label="Material Photographs & Swatches"
-              />
+              {/* Sample Photo */}
+              <div className="pt-2">
+                <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1.5">
+                  Material Photographs
+                </label>
+                <ImageUploader
+                  images={galleryImages}
+                  onChange={setGalleryImages}
+                  allowMultiple={false}
+                  maxFiles={1}
+                  label="Upload Material Sample"
+                />
+              </div>
 
-              {/* Visibility */}
-              <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="flex items-center justify-between pt-2">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#141414]">
                   <input
                     type="checkbox"
                     checked={isPublished}
                     onChange={(e) => setIsPublished(e.target.checked)}
-                    className="w-4 h-4 text-[#C5A15B]"
+                    className="w-4 h-4 rounded text-[#C5A15B]"
                   />
-                  <span className="text-xs text-[#F5F0E6]">Publish in Catalogue</span>
+                  <span>Published in Catalogue</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#141414]">
                   <input
                     type="checkbox"
                     checked={isFeatured}
                     onChange={(e) => setIsFeatured(e.target.checked)}
-                    className="w-4 h-4 text-[#C5A15B]"
+                    className="w-4 h-4 rounded text-[#C5A15B]"
                   />
-                  <span className="text-xs text-[#F5F0E6]">Feature in Showcase</span>
+                  <span>Featured Material</span>
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5DEC9]">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 text-xs text-white/70 hover:text-white"
+                  className="px-4 py-2 rounded-full border border-[#E5DEC9] text-[#78726A] text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="btn-gold px-6 py-2.5 rounded-lg text-xs uppercase tracking-wider font-medium"
+                  className="bg-[#141414] hover:bg-[#C5A15B] text-white hover:text-[#141414] px-5 py-2 rounded-full text-xs font-semibold shadow-sm transition-all"
                 >
                   {saving ? 'Saving...' : 'Save Material'}
                 </button>
@@ -577,4 +554,3 @@ export default function AdminMaterialsPage() {
     </div>
   );
 }
-

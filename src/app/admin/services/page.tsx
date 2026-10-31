@@ -8,7 +8,7 @@ import { serviceService } from '@/services/service.service';
 import { ServiceItem, CreateServiceInput } from '@/types/service.types';
 import { slugify } from '@/utils/slug';
 import { compressImageFile } from '@/utils/image-compression';
-import { Wrench, Plus, Trash2, Edit, X, AlertCircle } from 'lucide-react';
+import { Sparkles, Plus, Trash2, Edit, X, AlertCircle, Upload } from 'lucide-react';
 
 export default function AdminServicesPage() {
   const { services, loading, refresh } = useServices();
@@ -122,14 +122,14 @@ export default function AdminServicesPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen">
+    <div className="flex-1 flex flex-col bg-[#F5F0E6] min-h-screen font-sans">
       <AdminHeader
-        title="Services Management"
-        subtitle="Manage atelier disciplines, deliverables, and capability showcases"
+        title="Services & Capabilities"
+        subtitle="Manage atelier disciplines, deliverables, and turnkey capability showcases"
         actionButton={
           <button
             onClick={openCreateModal}
-            className="btn-gold px-4 py-2 rounded-lg text-xs uppercase tracking-wider font-sans flex items-center gap-1.5"
+            className="bg-[#141414] hover:bg-[#C5A15B] text-[#FAF7F0] hover:text-[#141414] px-4 sm:px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2 shadow-sm transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Discipline</span>
@@ -137,122 +137,126 @@ export default function AdminServicesPage() {
         }
       />
 
-      <div className="p-8 space-y-6 max-w-7xl w-full mx-auto">
-        <div className="bg-[#181818] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-white/10 text-[11px] uppercase tracking-wider text-[#C5A15B] bg-[#141414]/60">
-                <th className="py-3.5 px-4 font-medium">No. & Discipline Title</th>
-                <th className="py-3.5 px-4 font-medium hidden md:table-cell">Deliverables</th>
-                <th className="py-3.5 px-4 font-medium">Status</th>
-                <th className="py-3.5 px-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-xs font-sans">
-              {services.map((srv) => (
-                <tr key={srv.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative w-12 h-12 rounded overflow-hidden bg-[#242424] flex-shrink-0 border border-white/10">
-                        <Image
-                          src={srv.imageUrl || '/brand/logo.png'}
-                          alt={srv.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="font-mono text-[10px] text-[#C5A15B]">{srv.number}</div>
-                        <div className="font-medium text-[#F5F0E6]">{srv.title}</div>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4 hidden md:table-cell text-[#E9E5DE]/70">
-                    <div className="line-clamp-2 text-[11px]">
-                      {srv.deliverables?.join(' • ') || '—'}
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    <button
-                      onClick={() => handleTogglePublish(srv.id)}
-                      className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        srv.isPublished
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                          : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-                      }`}
-                    >
-                      {srv.isPublished ? 'Published' : 'Draft'}
-                    </button>
-                  </td>
-
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => openEditModal(srv)}
-                        className="p-1.5 text-white/50 hover:text-white rounded"
-                        title="Edit Discipline"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-
-                      <button
-                        onClick={() => handleDelete(srv.id)}
-                        className="p-1.5 text-red-400/60 hover:text-red-400 rounded"
-                        title="Delete Discipline"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+      <div className="p-6 sm:p-10 space-y-6 max-w-[1500px] w-full mx-auto font-sans">
+        <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#E5DEC9] text-[11px] uppercase tracking-wider text-[#78726A] bg-[#F5F0E6]/60 font-semibold">
+                  <th className="py-3.5 px-5">No. & Discipline Title</th>
+                  <th className="py-3.5 px-5 hidden md:table-cell">Key Deliverables</th>
+                  <th className="py-3.5 px-5">Status</th>
+                  <th className="py-3.5 px-5 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#E5DEC9]/70 text-xs font-sans">
+                {services.map((srv) => (
+                  <tr key={srv.id} className="hover:bg-[#F5F0E6]/40 transition-colors">
+                    <td className="py-4 px-5">
+                      <div className="flex items-center gap-3.5">
+                        <div className="relative w-14 h-11 rounded-lg overflow-hidden bg-[#F5F0E6] flex-shrink-0 border border-[#E5DEC9]">
+                          <Image
+                            src={srv.imageUrl || '/brand/logo.png'}
+                            alt={srv.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-[10px] text-[#C5A15B] font-semibold uppercase tracking-wider">
+                            PHASE {srv.number}
+                          </div>
+                          <div className="font-semibold text-sm text-[#141414]">{srv.title}</div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="py-4 px-5 hidden md:table-cell text-[#78726A]">
+                      <div className="line-clamp-2 text-xs">
+                        {srv.deliverables?.join(' · ') || '—'}
+                      </div>
+                    </td>
+
+                    <td className="py-4 px-5">
+                      <button
+                        onClick={() => handleTogglePublish(srv.id)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${
+                          srv.isPublished
+                            ? 'bg-[#2E7D5A]/15 text-[#2E7D5A] border border-[#2E7D5A]/30 hover:bg-[#2E7D5A]/20'
+                            : 'bg-[#C5A15B]/15 text-[#9E7B36] border border-[#C5A15B]/30 hover:bg-[#C5A15B]/20'
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            srv.isPublished ? 'bg-[#2E7D5A]' : 'bg-[#C5A15B]'
+                          }`}
+                        />
+                        <span>{srv.isPublished ? 'LIVE' : 'DRAFT'}</span>
+                      </button>
+                    </td>
+
+                    <td className="py-4 px-5 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => openEditModal(srv)}
+                          className="p-1.5 text-[#78726A] hover:text-[#C5A15B] hover:bg-[#F5F0E6] rounded-lg transition-colors"
+                          title="Edit Discipline"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(srv.id)}
+                          className="p-1.5 text-[#78726A] hover:text-[#B43A3A] hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete Discipline"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
+                {services.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="py-16 text-center text-xs text-[#78726A]">
+                      No services configured in atelier database.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* Service Modal */}
+      {/* Service Modal Form */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-[#181818] border border-white/15 rounded-xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8 font-sans">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <h3 className="text-lg font-serif text-[#F5F0E6]">
-                {editingService ? 'Edit Service' : 'Add New Service Discipline'}
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-5 my-8">
+            <div className="flex items-center justify-between pb-4 border-b border-[#E5DEC9]">
+              <h2 className="font-bold text-lg text-[#141414]">
+                {editingService ? 'Edit Discipline' : 'Add Discipline'}
+              </h2>
               <button
                 onClick={() => setModalOpen(false)}
-                className="text-white/60 hover:text-white"
+                className="p-1.5 text-[#78726A] hover:text-[#141414] rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {error && (
-              <div className="p-3 bg-red-950/40 border border-red-800 text-red-200 text-xs rounded flex items-center gap-2">
+              <div className="p-3 bg-red-50 border border-red-200 text-[#B43A3A] text-xs rounded-xl flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             <form onSubmit={handleSave} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="sm:col-span-1">
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                    Number
-                  </label>
-                  <input
-                    type="text"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                    placeholder="01"
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-3 py-2 text-xs text-[#F5F0E6]"
-                  />
-                </div>
-
-                <div className="sm:col-span-3">
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
                     Discipline Title *
                   </label>
                   <input
@@ -261,86 +265,100 @@ export default function AdminServicesPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Residential Interior Architecture"
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6]"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                    Phase Number
+                  </label>
+                  <input
+                    type="text"
+                    value={number}
+                    onChange={(e) => setNumber(e.target.value)}
+                    placeholder="01"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                  Short Description
+                <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                  Brief Summary
                 </label>
                 <textarea
                   rows={2}
                   value={shortDesc}
                   onChange={(e) => setShortDesc(e.target.value)}
-                  placeholder="Concise overview..."
-                  className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6] resize-none"
+                  placeholder="Turnkey residential interiors tailored with bespoke joinery..."
+                  className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
+                <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
                   Key Deliverables (One per line)
                 </label>
                 <textarea
                   rows={3}
                   value={deliverablesText}
                   onChange={(e) => setDeliverablesText(e.target.value)}
-                  placeholder="Architectural 3D modeling&#10;Lighting & acoustic study&#10;Turnkey site execution"
-                  className="w-full bg-[#121212] border border-white/15 rounded-lg px-4 py-2 text-xs text-[#F5F0E6]"
+                  placeholder="Architectural Joinery Drawings&#10;MEP & Lighting Layouts&#10;BOQ Material Dossier"
+                  className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                 />
               </div>
 
-              {/* Image Upload */}
-              <div className="space-y-2">
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B]">
-                  Supporting Showcase Image
+              <div>
+                <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                  Reference Photograph (URL or File Upload)
                 </label>
-                <div className="flex items-center gap-4">
-                  {imageUrl && (
-                    <div className="relative w-20 h-16 rounded overflow-hidden bg-black flex-shrink-0 border border-white/15">
-                      <Image
-                        src={imageUrl}
-                        alt="Service preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-4 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none mb-2"
+                />
+
+                <label className="block border border-dashed border-[#E5DEC9] hover:border-[#C5A15B] bg-[#F5F0E6]/30 rounded-xl p-2.5 text-center cursor-pointer">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
-                    className="text-xs text-white/70 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:bg-white/10 file:text-white"
+                    className="hidden"
                   />
-                </div>
+                  <span className="text-xs text-[#78726A] flex items-center justify-center gap-2">
+                    <Upload className="w-3.5 h-3.5 text-[#C5A15B]" />
+                    <span>Upload Discipline Photograph</span>
+                  </span>
+                </label>
               </div>
 
-              <div className="flex items-center gap-4 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="flex items-center justify-between pt-2">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#141414]">
                   <input
                     type="checkbox"
                     checked={isPublished}
                     onChange={(e) => setIsPublished(e.target.checked)}
-                    className="w-4 h-4 text-[#C5A15B]"
+                    className="w-4 h-4 rounded text-[#C5A15B]"
                   />
-                  <span className="text-xs text-[#F5F0E6]">Publish on Public Website</span>
+                  <span>Published on Public Website</span>
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5DEC9]">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 text-xs text-white/70 hover:text-white"
+                  className="px-4 py-2 rounded-full border border-[#E5DEC9] text-[#78726A] text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="btn-gold px-6 py-2.5 rounded-lg text-xs uppercase tracking-wider font-medium"
+                  className="bg-[#141414] hover:bg-[#C5A15B] text-white hover:text-[#141414] px-5 py-2 rounded-full text-xs font-semibold shadow-sm transition-all"
                 >
                   {saving ? 'Saving...' : 'Save Discipline'}
                 </button>
@@ -352,4 +370,3 @@ export default function AdminServicesPage() {
     </div>
   );
 }
-

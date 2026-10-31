@@ -12,21 +12,34 @@ import {
   Edit,
   Trash2,
   Star,
-  CheckCircle,
-  XCircle,
+  Search,
   ExternalLink,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 
 export default function AdminProjectsPage() {
   const { projects, loading, refresh } = useProjects();
   const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const filtered = projects.filter((p) => {
-    if (filter === 'published') return p.isPublished;
-    if (filter === 'draft') return !p.isPublished;
-    return true;
+    const matchesFilter =
+      filter === 'all'
+        ? true
+        : filter === 'published'
+        ? p.isPublished
+        : !p.isPublished;
+
+    const matchesSearch =
+      searchQuery.trim() === ''
+        ? true
+        : p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.location.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesFilter && matchesSearch;
   });
 
   const handleTogglePublish = async (id: string) => {
@@ -46,228 +59,246 @@ export default function AdminProjectsPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen">
+    <div className="flex-1 flex flex-col bg-[#F5F0E6] min-h-screen font-sans">
       <AdminHeader
-        title="Portfolio Management"
-        subtitle="Create, edit, curate photographic galleries, and publish atelier commissions"
+        title="Portfolio Projects"
+        subtitle="Create, curate architectural photographs, and publish commissions to the public showcase"
         actionButton={
           <Link
             href="/admin/projects/new"
-            className="btn-gold px-4 py-2 rounded-lg text-xs uppercase tracking-wider font-sans flex items-center gap-1.5"
+            className="bg-[#141414] hover:bg-[#C5A15B] text-[#FAF7F0] hover:text-[#141414] px-4 sm:px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2 shadow-sm transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Create New Project</span>
+            <span>Create Project</span>
           </Link>
         }
       />
 
-      <div className="p-8 space-y-6 max-w-7xl w-full mx-auto">
-        {/* Filter Pills */}
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-2">
+      <div className="p-6 sm:p-10 space-y-6 max-w-[1500px] w-full mx-auto">
+        {/* Controls Bar: Search & Status Filters */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          {/* Status Filter Pills */}
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setFilter('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-sans tracking-wide transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-sans transition-all ${
                 filter === 'all'
-                  ? 'bg-[#C5A15B] text-[#141414] font-medium'
-                  : 'bg-[#1c1c1c] text-[#E9E5DE]/70 hover:text-white'
+                  ? 'bg-[#141414] text-[#FAF7F0] font-semibold shadow-xs'
+                  : 'bg-[#FFFFFF] border border-[#E5DEC9] text-[#78726A] hover:text-[#141414] hover:border-[#C5A15B]/40'
               }`}
             >
               All Projects ({projects.length})
             </button>
             <button
               onClick={() => setFilter('published')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-sans tracking-wide transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-sans transition-all ${
                 filter === 'published'
-                  ? 'bg-[#C5A15B] text-[#141414] font-medium'
-                  : 'bg-[#1c1c1c] text-[#E9E5DE]/70 hover:text-white'
+                  ? 'bg-[#141414] text-[#FAF7F0] font-semibold shadow-xs'
+                  : 'bg-[#FFFFFF] border border-[#E5DEC9] text-[#78726A] hover:text-[#141414] hover:border-[#C5A15B]/40'
               }`}
             >
               Published ({projects.filter((p) => p.isPublished).length})
             </button>
             <button
               onClick={() => setFilter('draft')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-sans tracking-wide transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-sans transition-all ${
                 filter === 'draft'
-                  ? 'bg-[#C5A15B] text-[#141414] font-medium'
-                  : 'bg-[#1c1c1c] text-[#E9E5DE]/70 hover:text-white'
+                  ? 'bg-[#141414] text-[#FAF7F0] font-semibold shadow-xs'
+                  : 'bg-[#FFFFFF] border border-[#E5DEC9] text-[#78726A] hover:text-[#141414] hover:border-[#C5A15B]/40'
               }`}
             >
               Drafts ({projects.filter((p) => !p.isPublished).length})
             </button>
           </div>
 
-          <div className="text-xs text-[#E9E5DE]/50 font-sans">
-            Syncs instantly with public portfolio
+          {/* Search Box */}
+          <div className="relative min-w-[260px]">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search title, category, city..."
+              className="w-full bg-[#FFFFFF] border border-[#E5DEC9] rounded-full pl-9 pr-4 py-1.5 text-xs text-[#141414] placeholder:text-[#78726A] focus:border-[#C5A15B] focus:outline-none shadow-xs transition-colors"
+            />
+            <Search className="w-3.5 h-3.5 text-[#78726A] absolute left-3 top-2.5" />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-2.5 text-[#78726A] hover:text-[#141414]"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Project Table / Card List */}
+        {/* Project Table List */}
         {loading ? (
-          <div className="py-20 text-center text-xs text-[#E9E5DE]/50 font-mono">
-            Loading atelier database...
+          <div className="py-24 text-center text-xs text-[#78726A] font-sans">
+            Loading architectural portfolio...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-20 text-center bg-[#181818] rounded-xl border border-white/5 space-y-3">
-            <p className="text-sm font-serif text-[#F5F0E6]">No projects found in this filter.</p>
-            <Link
-              href="/admin/projects/new"
-              className="inline-block btn-gold px-4 py-2 rounded text-xs uppercase tracking-wider"
-            >
-              Create First Project
-            </Link>
+          <div className="py-20 text-center bg-[#FFFFFF] rounded-2xl border border-[#E5DEC9] p-8 space-y-3">
+            <p className="text-base font-semibold text-[#141414]">No projects found matching your query.</p>
+            <p className="text-xs text-[#78726A]">Try clearing your search or filter.</p>
           </div>
         ) : (
-          <div className="bg-[#181818] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/10 text-[11px] uppercase tracking-wider text-[#C5A15B] bg-[#141414]/60">
-                  <th className="py-3.5 px-4 font-medium">Cover & Title</th>
-                  <th className="py-3.5 px-4 font-medium hidden sm:table-cell">Category</th>
-                  <th className="py-3.5 px-4 font-medium hidden md:table-cell">Location & Year</th>
-                  <th className="py-3.5 px-4 font-medium">Featured</th>
-                  <th className="py-3.5 px-4 font-medium">Status</th>
-                  <th className="py-3.5 px-4 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-xs font-sans">
-                {filtered.map((proj) => (
-                  <tr key={proj.id} className="hover:bg-white/[0.02] transition-colors">
-                    {/* Cover & Title */}
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-12 rounded overflow-hidden bg-[#242424] flex-shrink-0 border border-white/10">
-                          <Image
-                            src={proj.coverImage || '/brand/logo.png'}
-                            alt={proj.title}
-                            fill
-                            className="object-cover"
+          <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#E5DEC9] text-[11px] uppercase tracking-wider text-[#78726A] bg-[#F5F0E6]/60 font-semibold">
+                    <th className="py-3.5 px-5">Project Details</th>
+                    <th className="py-3.5 px-5 hidden sm:table-cell">Category</th>
+                    <th className="py-3.5 px-5 hidden md:table-cell">Location & Year</th>
+                    <th className="py-3.5 px-5">Featured</th>
+                    <th className="py-3.5 px-5">Status</th>
+                    <th className="py-3.5 px-5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E5DEC9]/70 text-xs font-sans">
+                  {filtered.map((proj) => (
+                    <tr key={proj.id} className="hover:bg-[#F5F0E6]/40 transition-colors">
+                      {/* Cover & Title */}
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-3.5">
+                          <div className="relative w-14 h-11 rounded-lg overflow-hidden bg-[#F5F0E6] flex-shrink-0 border border-[#E5DEC9]">
+                            <Image
+                              src={proj.coverImage || '/brand/logo.png'}
+                              alt={proj.title}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <Link
+                              href={`/admin/projects/${proj.id}`}
+                              className="font-semibold text-sm text-[#141414] hover:text-[#C5A15B] transition-colors truncate block"
+                            >
+                              {proj.title}
+                            </Link>
+                            <span className="text-[11px] text-[#78726A]">
+                              /{proj.slug}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Category */}
+                      <td className="py-4 px-5 hidden sm:table-cell text-[#78726A]">
+                        <span className="px-2.5 py-1 bg-[#F5F0E6] border border-[#E5DEC9] rounded-full text-[11px]">
+                          {proj.category}
+                        </span>
+                      </td>
+
+                      {/* Location & Year */}
+                      <td className="py-4 px-5 hidden md:table-cell text-[#78726A]">
+                        <div>{proj.location}</div>
+                        <div className="text-[11px] text-[#78726A]/70">{proj.year || '2024'}</div>
+                      </td>
+
+                      {/* Featured Star Toggle */}
+                      <td className="py-4 px-5">
+                        <button
+                          onClick={() => handleToggleFeatured(proj.id)}
+                          className={`p-1.5 rounded-full transition-colors ${
+                            proj.isFeatured
+                              ? 'text-[#C5A15B] bg-[#C5A15B]/15'
+                              : 'text-[#78726A]/40 hover:text-[#C5A15B]'
+                          }`}
+                          title={proj.isFeatured ? 'Featured on home' : 'Mark as featured'}
+                        >
+                          <Star className={`w-4 h-4 ${proj.isFeatured ? 'fill-[#C5A15B]' : ''}`} />
+                        </button>
+                      </td>
+
+                      {/* Status Toggle */}
+                      <td className="py-4 px-5">
+                        <button
+                          onClick={() => handleTogglePublish(proj.id)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${
+                            proj.isPublished
+                              ? 'bg-[#2E7D5A]/15 text-[#2E7D5A] border border-[#2E7D5A]/30 hover:bg-[#2E7D5A]/25'
+                              : 'bg-[#C5A15B]/15 text-[#9E7B36] border border-[#C5A15B]/30 hover:bg-[#C5A15B]/25'
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              proj.isPublished ? 'bg-[#2E7D5A]' : 'bg-[#C5A15B]'
+                            }`}
                           />
-                        </div>
-                        <div className="min-w-0">
-                          <Link
-                            href={`/admin/projects/${proj.id}`}
-                            className="font-medium text-[#F5F0E6] hover:text-[#C5A15B] transition-colors truncate block"
-                          >
-                            {proj.title}
-                          </Link>
-                          <span className="text-[10px] text-[#E9E5DE]/40 font-mono">
-                            /{proj.slug}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
+                          <span>{proj.isPublished ? 'LIVE' : 'DRAFT'}</span>
+                        </button>
+                      </td>
 
-                    {/* Category */}
-                    <td className="py-3.5 px-4 hidden sm:table-cell">
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-[#E9E5DE]/80 border border-white/5">
-                        {proj.category}
-                      </span>
-                    </td>
-
-                    {/* Location & Year */}
-                    <td className="py-3.5 px-4 hidden md:table-cell text-[#E9E5DE]/70">
-                      <div>{proj.location}</div>
-                      <div className="text-[10px] text-[#E9E5DE]/40">{proj.year}</div>
-                    </td>
-
-                    {/* Featured Star Toggle */}
-                    <td className="py-3.5 px-4">
-                      <button
-                        onClick={() => handleToggleFeatured(proj.id)}
-                        className={`p-1.5 rounded transition-colors ${
-                          proj.isFeatured
-                            ? 'text-[#C5A15B] hover:text-amber-300'
-                            : 'text-white/20 hover:text-white/60'
-                        }`}
-                        title={proj.isFeatured ? 'Featured on Homepage' : 'Mark as Featured'}
-                      >
-                        <Star className={`w-4 h-4 ${proj.isFeatured ? 'fill-current' : ''}`} />
-                      </button>
-                    </td>
-
-                    {/* Published Toggle */}
-                    <td className="py-3.5 px-4">
-                      <button
-                        onClick={() => handleTogglePublish(proj.id)}
-                        className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                          proj.isPublished
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
-                            : 'bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-700'
-                        }`}
-                      >
-                        {proj.isPublished ? 'Published' : 'Draft'}
-                      </button>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {proj.isPublished && (
+                      {/* Actions */}
+                      <td className="py-4 px-5 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           <Link
                             href={`/projects/${proj.slug}`}
                             target="_blank"
-                            title="Preview on Public Website"
-                            className="p-1.5 text-white/50 hover:text-[#C5A15B] rounded"
+                            className="p-1.5 text-[#78726A] hover:text-[#C5A15B] hover:bg-[#F5F0E6] rounded-lg transition-colors"
+                            title="Preview on live site"
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
-                        )}
 
-                        <Link
-                          href={`/admin/projects/${proj.id}`}
-                          title="Edit Project"
-                          className="p-1.5 text-white/50 hover:text-white rounded"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Link>
+                          <Link
+                            href={`/admin/projects/${proj.id}`}
+                            className="p-1.5 text-[#78726A] hover:text-[#C5A15B] hover:bg-[#F5F0E6] rounded-lg transition-colors"
+                            title="Edit project"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Link>
 
-                        <button
-                          onClick={() => setDeleteConfirmId(proj.id)}
-                          title="Delete Project"
-                          className="p-1.5 text-red-400/60 hover:text-red-400 rounded"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          <button
+                            onClick={() => setDeleteConfirmId(proj.id)}
+                            className="p-1.5 text-[#78726A] hover:text-[#B43A3A] hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete project"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteConfirmId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl p-6 sm:p-7 max-w-sm w-full shadow-2xl space-y-4">
+              <div className="w-10 h-10 rounded-full bg-red-50 text-[#B43A3A] flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-[#141414]">Delete Project</h3>
+                <p className="text-xs text-[#78726A] mt-1">
+                  Are you sure you want to delete this commission? This action removes it from the public portfolio.
+                </p>
+              </div>
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="px-4 py-2 rounded-full border border-[#E5DEC9] text-[#78726A] hover:text-[#141414] text-xs font-sans"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDelete(deleteConfirmId)}
+                  className="px-4 py-2 rounded-full bg-[#B43A3A] text-white hover:bg-red-700 text-xs font-sans font-semibold shadow-sm"
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
-
-      {/* Confirmation Modal */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#181818] border border-red-900/50 p-6 rounded-xl max-w-sm w-full space-y-4 shadow-2xl">
-            <div className="flex items-center gap-3 text-red-400">
-              <AlertTriangle className="w-6 h-6 flex-shrink-0" />
-              <h3 className="text-base font-medium">Delete Commission?</h3>
-            </div>
-            <p className="text-xs text-[#E9E5DE]/75 leading-relaxed">
-              Are you sure you want to remove this project from the atelier archive? This action cannot be undone.
-            </p>
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className="px-4 py-2 rounded text-xs text-white/70 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirmId)}
-                className="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white text-xs font-medium"
-              >
-                Confirm Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
-

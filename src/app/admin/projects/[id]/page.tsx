@@ -27,7 +27,7 @@ export default function EditProjectPage() {
 
   if (loading) {
     return (
-      <div className="p-16 text-center text-xs font-mono text-[#C5A15B]">
+      <div className="p-16 text-center text-xs font-admin font-medium text-[#C5A15B]">
         Loading commission details...
       </div>
     );
@@ -35,7 +35,7 @@ export default function EditProjectPage() {
 
   if (!project) {
     return (
-      <div className="p-16 text-center text-sm font-serif text-[#F5F0E6]">
+      <div className="p-16 text-center text-sm font-admin text-[#78726A]">
         Project not found.
       </div>
     );

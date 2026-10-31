@@ -7,7 +7,7 @@ import { useTestimonials } from '@/hooks/useDataServices';
 import { testimonialService } from '@/services/testimonial.service';
 import { Testimonial, CreateTestimonialInput } from '@/types/testimonial.types';
 import { compressImageFile } from '@/utils/image-compression';
-import { Quote, Plus, Trash2, Edit, X, Star, AlertCircle } from 'lucide-react';
+import { Quote, Plus, Trash2, Edit, X, Star, AlertCircle, Upload } from 'lucide-react';
 
 export default function AdminTestimonialsPage() {
   const { testimonials, loading, refresh } = useTestimonials();
@@ -115,223 +115,235 @@ export default function AdminTestimonialsPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen">
+    <div className="flex-1 flex flex-col bg-[#F5F0E6] min-h-screen font-sans">
       <AdminHeader
-        title="Testimonials & Patron Commendations"
-        subtitle="Manage client reflections, project associations, and verified ratings"
+        title="Patron Testimonials"
+        subtitle="Manage client commendations, architectural reviews, and studio testimonials"
         actionButton={
           <button
             onClick={openCreateModal}
-            className="btn-gold px-4 py-2 rounded-lg text-xs uppercase tracking-wider font-sans flex items-center gap-1.5"
+            className="bg-[#141414] hover:bg-[#C5A15B] text-[#FAF7F0] hover:text-[#141414] px-4 sm:px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2 shadow-sm transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Commendation</span>
+            <span>Add Testimonial</span>
           </button>
         }
       />
 
-      <div className="p-8 space-y-6 max-w-7xl w-full mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {testimonials.map((test) => (
+      <div className="p-6 sm:p-10 space-y-6 max-w-[1500px] w-full mx-auto font-sans">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          {testimonials.map((item) => (
             <div
-              key={test.id}
-              className="bg-[#181818] border border-white/10 rounded-xl p-6 space-y-4 shadow-xl flex flex-col justify-between"
+              key={item.id}
+              className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-[#C5A15B] transition-all"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-[#C5A15B]">
-                    {Array.from({ length: test.rating || 5 }).map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3.5 h-3.5 ${
+                          i < item.rating ? 'fill-current' : 'text-[#E5DEC9]'
+                        }`}
+                      />
                     ))}
                   </div>
 
                   <button
-                    onClick={() => handleTogglePublish(test.id)}
-                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
-                      test.isPublished
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                        : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                    onClick={() => handleTogglePublish(item.id)}
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all ${
+                      item.isPublished
+                        ? 'bg-[#2E7D5A]/15 text-[#2E7D5A] border border-[#2E7D5A]/30'
+                        : 'bg-[#C5A15B]/15 text-[#9E7B36] border border-[#C5A15B]/30'
                     }`}
                   >
-                    {test.isPublished ? 'Published' : 'Draft'}
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        item.isPublished ? 'bg-[#2E7D5A]' : 'bg-[#C5A15B]'
+                      }`}
+                    />
+                    <span>{item.isPublished ? 'LIVE' : 'DRAFT'}</span>
                   </button>
                 </div>
 
-                <blockquote className="text-sm font-serif italic text-[#F5F0E6] leading-relaxed">
-                  “{test.quote}”
-                </blockquote>
+                <p className="text-xs text-[#141414] leading-relaxed italic font-sans">
+                  &ldquo;{item.quote}&rdquo;
+                </p>
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+              <div className="pt-4 border-t border-[#E5DEC9]/70 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {test.avatarUrl && (
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-[#C5A15B]/40">
-                      <Image
-                        src={test.avatarUrl}
-                        alt={test.clientName}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
+                  <div className="relative w-9 h-9 rounded-full overflow-hidden bg-[#F5F0E6] border border-[#E5DEC9] flex-shrink-0">
+                    <Image
+                      src={item.avatarUrl || '/reference_assets/testimonial_avatar.jpg'}
+                      alt={item.clientName}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                   <div>
-                    <div className="text-xs font-medium text-[#F5F0E6]">{test.clientName}</div>
-                    <div className="text-[10px] text-[#C5A15B] uppercase tracking-wider font-sans">
-                      {test.projectAssociation}
-                    </div>
+                    <div className="font-semibold text-xs text-[#141414]">{item.clientName}</div>
+                    <div className="text-[10px] text-[#78726A]">{item.clientRole}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <button
-                    onClick={() => openEditModal(test)}
-                    className="p-1.5 text-white/50 hover:text-white rounded"
+                    onClick={() => openEditModal(item)}
+                    className="p-1.5 text-[#78726A] hover:text-[#C5A15B] hover:bg-[#F5F0E6] rounded-lg transition-colors"
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(test.id)}
-                    className="p-1.5 text-red-400/60 hover:text-red-400 rounded"
+                    onClick={() => handleDelete(item.id)}
+                    className="p-1.5 text-[#78726A] hover:text-[#B43A3A] hover:bg-red-50 rounded-lg transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             </div>
           ))}
+
+          {testimonials.length === 0 && (
+            <div className="col-span-full py-16 text-center bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl">
+              <p className="text-sm font-semibold text-[#141414]">No testimonials found.</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Testimonial Modal Form */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-[#181818] border border-white/15 rounded-xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8 font-sans">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <h3 className="text-lg font-serif text-[#F5F0E6]">
-                {editingTestimonial ? 'Edit Commendation' : 'Add New Commendation'}
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 my-8 font-sans">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5DEC9]">
+              <h2 className="font-bold text-lg text-[#141414]">
+                {editingTestimonial ? 'Edit Commendation' : 'Add Commendation'}
+              </h2>
               <button
                 onClick={() => setModalOpen(false)}
-                className="text-white/60 hover:text-white"
+                className="p-1.5 text-[#78726A] hover:text-[#141414] rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {error && (
-              <div className="p-3 bg-red-950/40 border border-red-800 text-red-200 text-xs rounded flex items-center gap-2">
+              <div className="p-3 bg-red-50 border border-red-200 text-[#B43A3A] text-xs rounded-xl flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             <form onSubmit={handleSave} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                    Patron Full Name *
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                    Patron Name *
                   </label>
                   <input
                     type="text"
                     required
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    placeholder="e.g. Vikram Singhania"
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-3 py-2 text-xs text-[#F5F0E6]"
+                    placeholder="e.g. Vikramaditya Singhania"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-3.5 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                    Project Association *
+                  <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                    Designation / Title
                   </label>
                   <input
                     type="text"
-                    required
-                    value={projectAssociation}
-                    onChange={(e) => setProjectAssociation(e.target.value)}
-                    placeholder="e.g. The Skyward Penthouse"
-                    className="w-full bg-[#121212] border border-white/15 rounded-lg px-3 py-2 text-xs text-[#F5F0E6]"
+                    value={clientRole}
+                    onChange={(e) => setClientRole(e.target.value)}
+                    placeholder="e.g. Penthouse Resident"
+                    className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-3.5 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
-                  Patron Title / Role (Optional)
+                <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                  Commission Project
                 </label>
                 <input
                   type="text"
-                  value={clientRole}
-                  onChange={(e) => setClientRole(e.target.value)}
-                  placeholder="e.g. Private Investor / Managing Partner"
-                  className="w-full bg-[#121212] border border-white/15 rounded-lg px-3 py-2 text-xs text-[#F5F0E6]"
+                  value={projectAssociation}
+                  onChange={(e) => setProjectAssociation(e.target.value)}
+                  placeholder="e.g. Worli Penthouse, Mumbai"
+                  className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-3.5 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B] mb-1">
+                <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
                   Commendation Quote *
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   required
                   value={quote}
                   onChange={(e) => setQuote(e.target.value)}
-                  placeholder="Enter the client testimonial text..."
-                  className="w-full bg-[#121212] border border-white/15 rounded-lg px-3 py-2 text-xs text-[#F5F0E6]"
+                  placeholder="Heaven Interiors brought a profound sense of restraint and material warmth..."
+                  className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-3.5 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none"
                 />
               </div>
 
-              {/* Portrait Upload */}
-              <div className="space-y-2">
-                <label className="block text-[11px] uppercase tracking-wider text-[#C5A15B]">
-                  Client Portrait Avatar
+              <div>
+                <label className="block text-[11px] uppercase tracking-wider text-[#78726A] font-semibold mb-1">
+                  Portrait Avatar (URL or File Upload)
                 </label>
-                <div className="flex items-center gap-4">
-                  {avatarUrl && (
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-black flex-shrink-0 border border-white/15">
-                      <Image
-                        src={avatarUrl}
-                        alt="Avatar preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
+                <input
+                  type="url"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full bg-[#F5F0E6]/50 border border-[#E5DEC9] rounded-xl px-3.5 py-2 text-xs text-[#141414] focus:border-[#C5A15B] focus:bg-white focus:outline-none mb-2"
+                />
+
+                <label className="block border border-dashed border-[#E5DEC9] hover:border-[#C5A15B] bg-[#F5F0E6]/30 rounded-xl p-2 text-center cursor-pointer">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleAvatarUpload}
-                    className="text-xs text-white/70 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:bg-white/10 file:text-white"
+                    className="hidden"
                   />
-                </div>
+                  <span className="text-xs text-[#78726A] flex items-center justify-center gap-1.5">
+                    <Upload className="w-3.5 h-3.5 text-[#C5A15B]" />
+                    <span>Upload Patron Portrait</span>
+                  </span>
+                </label>
               </div>
 
-              <div className="flex items-center gap-4 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="flex items-center justify-between pt-1">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#141414]">
                   <input
                     type="checkbox"
                     checked={isPublished}
                     onChange={(e) => setIsPublished(e.target.checked)}
-                    className="w-4 h-4 text-[#C5A15B]"
+                    className="w-4 h-4 rounded text-[#C5A15B]"
                   />
-                  <span className="text-xs text-[#F5F0E6]">Publish on Public Website</span>
+                  <span>Published on Website</span>
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5DEC9]">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 text-xs text-white/70 hover:text-white"
+                  className="px-4 py-2 rounded-full border border-[#E5DEC9] text-[#78726A] text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="btn-gold px-6 py-2.5 rounded-lg text-xs uppercase tracking-wider font-medium"
+                  className="bg-[#141414] hover:bg-[#C5A15B] text-white hover:text-[#141414] px-5 py-2 rounded-full text-xs font-semibold shadow-sm transition-all"
                 >
                   {saving ? 'Saving...' : 'Save Commendation'}
                 </button>
@@ -343,4 +355,3 @@ export default function AdminTestimonialsPage() {
     </div>
   );
 }
-

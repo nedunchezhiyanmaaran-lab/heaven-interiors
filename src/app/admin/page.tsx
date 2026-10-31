@@ -16,7 +16,7 @@ export default function AdminIndexPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-[#121212] flex items-center justify-center text-xs text-[#C5A15B] font-mono">
+    <div className="min-h-screen bg-[#F5F0E6] flex items-center justify-center text-xs text-[#C5A15B] font-admin font-medium">
       Redirecting to Studio CMS...
     </div>
   );

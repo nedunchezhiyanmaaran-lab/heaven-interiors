@@ -5,7 +5,7 @@ import { AdminHeader } from '@/components/admin/AdminHeader';
 import { useEnquiries } from '@/hooks/useDataServices';
 import { enquiryService } from '@/services/enquiry.service';
 import { Enquiry, EnquiryStatus } from '@/types/enquiry.types';
-import { Mail, Phone, Calendar, Trash2, CheckCircle2, Clock, AlertCircle, X } from 'lucide-react';
+import { Mail, Phone, Calendar, Trash2, CheckCircle2, Clock, AlertCircle, X, ExternalLink } from 'lucide-react';
 
 export default function AdminEnquiriesPage() {
   const { enquiries, loading, refresh } = useEnquiries();
@@ -33,24 +33,33 @@ export default function AdminEnquiriesPage() {
     }
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  };
+
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen">
+    <div className="flex-1 flex flex-col bg-[#F5F0E6] min-h-screen font-sans">
       <AdminHeader
         title="Commission Enquiries"
-        subtitle="Manage prospective patron inquiries submitted through the contact portal"
+        subtitle="Review, categorize, and follow up with prospective clients and interior patrons"
       />
 
-      <div className="p-8 space-y-6 max-w-7xl w-full mx-auto font-sans">
-        {/* Filters */}
-        <div className="flex items-center gap-2">
+      <div className="p-6 sm:p-10 space-y-6 max-w-[1500px] w-full mx-auto font-sans">
+        {/* Status Filter Pills */}
+        <div className="flex items-center gap-2 flex-wrap">
           {(['all', 'new', 'contacted', 'completed'] as const).map((st) => (
             <button
               key={st}
               onClick={() => setFilter(st)}
-              className={`px-3 py-1.5 rounded-lg text-xs tracking-wide uppercase transition-colors ${
+              className={`px-4 py-1.5 rounded-full text-xs font-sans capitalize transition-all ${
                 filter === st
-                  ? 'bg-[#C5A15B] text-[#141414] font-medium'
-                  : 'bg-[#1c1c1c] text-[#E9E5DE]/70 hover:text-white'
+                  ? 'bg-[#141414] text-[#FAF7F0] font-semibold shadow-xs'
+                  : 'bg-[#FFFFFF] border border-[#E5DEC9] text-[#78726A] hover:text-[#141414] hover:border-[#C5A15B]/40'
               }`}
             >
               {st} ({enquiries.filter((e) => (st === 'all' ? true : e.status === st)).length})
@@ -58,43 +67,48 @@ export default function AdminEnquiriesPage() {
           ))}
         </div>
 
-        {/* Enquiries List */}
+        {/* Enquiries Grid */}
         {loading ? (
-          <div className="py-20 text-center text-xs text-[#E9E5DE]/50 font-mono">
-            Loading enquiries...
+          <div className="py-24 text-center text-xs text-[#78726A]">
+            Loading commission enquiries...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-20 text-center bg-[#181818] rounded-xl border border-white/5 space-y-2">
-            <p className="text-sm font-serif text-[#F5F0E6]">No enquiries in this status filter.</p>
-            <p className="text-xs text-[#E9E5DE]/50">
-              New submissions on the public contact form will automatically appear here.
+          <div className="py-20 text-center bg-[#FFFFFF] rounded-2xl border border-[#E5DEC9] p-8 space-y-2">
+            <p className="text-base font-semibold text-[#141414]">No enquiries in this filter.</p>
+            <p className="text-xs text-[#78726A]">
+              New submissions on the public contact form will automatically arrive here.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {filtered.map((enq) => (
               <div
                 key={enq.id}
-                className="bg-[#181818] border border-white/10 rounded-xl p-5 space-y-4 shadow-xl flex flex-col justify-between hover:border-[#C5A15B]/30 transition-colors"
+                className="bg-[#FFFFFF] border border-[#E5DEC9] rounded-2xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-[#C5A15B] transition-all"
               >
                 <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="text-base font-serif text-[#F5F0E6] font-medium">
-                        {enq.name}
-                      </h3>
-                      <div className="text-[11px] text-[#C5A15B] font-mono mt-0.5">
-                        {enq.projectType}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#C5A15B]/20 text-[#9E7B36] font-bold text-xs flex items-center justify-center flex-shrink-0">
+                        {getInitials(enq.name)}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-base text-[#141414] leading-snug">
+                          {enq.name}
+                        </h3>
+                        <div className="text-[11px] text-[#C5A15B] font-semibold">
+                          {enq.projectType}
+                        </div>
                       </div>
                     </div>
 
                     <span
-                      className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded font-bold ${
+                      className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold ${
                         enq.status === 'new'
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                          ? 'bg-[#C5A15B]/20 text-[#9E7B36] border border-[#C5A15B]/30'
                           : enq.status === 'contacted'
-                          ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
-                          : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          ? 'bg-[#E5DEC9]/80 text-[#78726A]'
+                          : 'bg-[#2E7D5A]/15 text-[#2E7D5A] border border-[#2E7D5A]/30'
                       }`}
                     >
                       {enq.status}
@@ -102,57 +116,59 @@ export default function AdminEnquiriesPage() {
                   </div>
 
                   {enq.budgetRange && (
-                    <div className="text-xs text-[#E9E5DE]/70 bg-white/5 px-2.5 py-1 rounded inline-block">
-                      Budget: <span className="text-[#F5F0E6] font-medium">{enq.budgetRange}</span>
+                    <div className="text-xs text-[#78726A] bg-[#F5F0E6] border border-[#E5DEC9] px-2.5 py-1 rounded-lg inline-block">
+                      Budget: <span className="text-[#141414] font-semibold">{enq.budgetRange}</span>
                     </div>
                   )}
 
-                  <p className="text-xs text-[#E9E5DE]/75 leading-relaxed line-clamp-3 bg-[#141414] p-3 rounded border border-white/5">
+                  <p className="text-xs text-[#141414]/80 leading-relaxed line-clamp-3 bg-[#F5F0E6]/50 p-3 rounded-xl border border-[#E5DEC9]/60">
                     {enq.message}
                   </p>
 
-                  <div className="space-y-1 text-xs text-[#E9E5DE]/65 pt-1">
+                  <div className="space-y-1.5 text-xs text-[#78726A] pt-1">
                     <div className="flex items-center gap-2">
                       <Mail className="w-3.5 h-3.5 text-[#C5A15B]" />
-                      <a href={`mailto:${enq.email}`} className="hover:underline">
+                      <a href={`mailto:${enq.email}`} className="hover:text-[#141414] transition-colors truncate">
                         {enq.email}
                       </a>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-[#C5A15B]" />
-                      <a href={`tel:${enq.phone}`} className="hover:underline">
-                        {enq.phone}
-                      </a>
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] text-white/40 pt-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>{new Date(enq.createdAt).toLocaleString()}</span>
+                    {enq.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-3.5 h-3.5 text-[#C5A15B]" />
+                        <a href={`tel:${enq.phone}`} className="hover:text-[#141414] transition-colors">
+                          {enq.phone}
+                        </a>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-[11px] text-[#78726A]/80">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{new Date(enq.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Status Switcher & Delete */}
-                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    {(['new', 'contacted', 'completed'] as const).map((s) => (
+                <div className="pt-3 border-t border-[#E5DEC9]/70 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {(['new', 'contacted', 'completed'] as const).map((st) => (
                       <button
-                        key={s}
-                        onClick={() => handleStatusChange(enq.id, s)}
-                        className={`text-[9px] uppercase px-2 py-0.5 rounded border transition-colors ${
-                          enq.status === s
-                            ? 'border-[#C5A15B] text-[#C5A15B] font-bold bg-[#C5A15B]/10'
-                            : 'border-white/10 text-white/50 hover:text-white'
+                        key={st}
+                        onClick={() => handleStatusChange(enq.id, st)}
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-sans capitalize transition-all ${
+                          enq.status === st
+                            ? 'bg-[#C5A15B] text-[#141414] border border-[#C5A15B] font-semibold'
+                            : 'bg-white border border-[#E5DEC9] text-[#78726A] hover:text-[#141414]'
                         }`}
                       >
-                        {s}
+                        {st}
                       </button>
                     ))}
                   </div>
 
                   <button
                     onClick={() => handleDelete(enq.id)}
-                    className="p-1.5 text-red-400/60 hover:text-red-400"
-                    title="Delete Record"
+                    className="p-1.5 text-[#78726A] hover:text-[#B43A3A] hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete record"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -165,4 +181,3 @@ export default function AdminEnquiriesPage() {
     </div>
   );
 }
-
