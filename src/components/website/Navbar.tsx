@@ -22,6 +22,18 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
+
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
@@ -37,81 +49,112 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? 'py-4 bg-[#141414]/90 backdrop-blur-xl border-b border-white/10 shadow-2xl'
-          : 'py-5 sm:py-6 bg-transparent border-b border-transparent shadow-none'
-      }`}
-    >
-      <div className="max-w-[1400px] mx-auto px-6 sm:px-10 flex items-center justify-between">
-        {/* Brand Logo with official monogram */}
-        <Logo size="md" variant="light" />
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled
+            ? 'py-4 bg-[#141414]/90 backdrop-blur-xl border-b border-white/10 shadow-2xl'
+            : 'py-5 sm:py-6 bg-transparent border-b border-transparent shadow-none'
+        }`}
+      >
+        <div className="max-w-[1400px] mx-auto px-6 sm:px-10 flex items-center justify-between">
+          {/* Brand Logo with official monogram */}
+          <Logo size="md" variant="light" />
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-9">
-          {navLinks.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="text-[11px] font-sans font-medium tracking-[0.22em] text-[#E9E5DE]/80 hover:text-[#C5A15B] transition-colors py-1 relative group"
-            >
-              {item.label}
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-[#C5A15B] transition-all duration-300 group-hover:w-full" />
-            </Link>
-          ))}
-        </nav>
-
-        {/* CTA & Admin Link */}
-        <div className="hidden sm:flex items-center space-x-4">
-          <Link
-            href="/admin"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase font-mono tracking-wider text-[#C5A15B]/80 hover:text-[#C5A15B] border border-[#C5A15B]/30 hover:border-[#C5A15B] transition-all"
-            title="Open Atelier CMS"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Admin</span>
-          </Link>
-
-          {/* Reference pill button: ENQUIRE ↗ */}
-          <Link
-            href="/contact"
-            className="group px-5 py-2 rounded-full border border-[#C5A15B] text-[#C5A15B] hover:bg-[#C5A15B] hover:text-[#141414] transition-all duration-300 text-[11px] uppercase tracking-[0.2em] font-sans font-medium flex items-center gap-1.5 shadow-sm"
-          >
-            <span>ENQUIRE</span>
-            <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
-        </div>
-
-        {/* Mobile Hamburger Toggle */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="lg:hidden p-2 text-[#F5F0E6] hover:text-[#C5A15B] transition-colors focus:outline-none"
-          aria-label="Toggle navigation menu"
-        >
-          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
-
-      {/* Mobile Drawer */}
-      {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 top-[76px] bg-[#141414]/98 backdrop-blur-2xl border-t border-[#C5A15B]/20 p-8 flex flex-col justify-between overflow-y-auto">
-          <div className="flex flex-col space-y-6 pt-4">
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center space-x-9">
             {navLinks.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-xl font-heading tracking-widest text-[#F5F0E6] hover:text-[#C5A15B] transition-colors border-b border-white/5 pb-3"
+                className="text-[11px] font-sans font-medium tracking-[0.22em] text-[#E9E5DE]/80 hover:text-[#C5A15B] transition-colors py-1 relative group"
               >
                 {item.label}
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-[#C5A15B] transition-all duration-300 group-hover:w-full" />
+              </Link>
+            ))}
+          </nav>
+
+          {/* CTA & Admin Link */}
+          <div className="hidden sm:flex items-center space-x-4">
+            <Link
+              href="/admin"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase font-mono tracking-wider text-[#C5A15B]/80 hover:text-[#C5A15B] border border-[#C5A15B]/30 hover:border-[#C5A15B] transition-all"
+              title="Open Atelier CMS"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Admin</span>
+            </Link>
+
+            {/* Reference pill button: ENQUIRE ↗ */}
+            <Link
+              href="/contact"
+              className="group px-5 py-2 rounded-full border border-[#C5A15B] text-[#C5A15B] hover:bg-[#C5A15B] hover:text-[#141414] transition-all duration-300 text-[11px] uppercase tracking-[0.2em] font-sans font-medium flex items-center gap-1.5 shadow-sm"
+            >
+              <span>ENQUIRE</span>
+              <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          </div>
+
+          {/* Mobile Hamburger Toggle Button */}
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="lg:hidden p-2 text-[#F5F0E6] hover:text-[#C5A15B] transition-colors focus:outline-none"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </div>
+      </header>
+
+      {/* Full-Screen Independent Mobile Navigation Drawer */}
+      {mobileOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 z-[9999] w-screen h-[100dvh] bg-[#141414] text-[#F5F0E6] flex flex-col justify-between overflow-y-auto animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile Navigation"
+        >
+          {/* Mobile Menu Header Bar */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0 bg-[#141414]/95 backdrop-blur-md sticky top-0 z-10">
+            <Logo size="md" variant="light" />
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="p-2 text-[#F5F0E6] hover:text-[#C5A15B] transition-colors focus:outline-none rounded-full hover:bg-white/5"
+              aria-label="Close navigation menu"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Nav Links List */}
+          <div className="flex-1 px-6 py-6 sm:px-8 flex flex-col justify-start divide-y divide-white/5 overflow-y-auto">
+            {navLinks.map((item, index) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className="group flex items-center justify-between py-4 text-[#F5F0E6] hover:text-[#C5A15B] transition-colors"
+              >
+                <div className="flex items-baseline gap-4">
+                  <span className="font-mono text-xs text-[#C5A15B]/70 tracking-widest">
+                    0{index + 1}
+                  </span>
+                  <span className="text-lg font-sans font-medium tracking-[0.16em] uppercase">
+                    {item.label}
+                  </span>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-white/30 group-hover:text-[#C5A15B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </Link>
             ))}
           </div>
 
-          <div className="pt-8 border-t border-white/10 flex flex-col gap-4">
+          {/* Drawer Footer Actions */}
+          <div className="p-6 sm:p-8 pb-10 sm:pb-8 border-t border-white/10 bg-[#181818] flex flex-col gap-3 shrink-0">
             <Link
               href="/admin"
-              className="w-full py-3 text-center border border-[#C5A15B]/40 text-[#C5A15B] uppercase text-xs tracking-widest font-sans flex items-center justify-center gap-2"
+              onClick={() => setMobileOpen(false)}
+              className="w-full py-3.5 px-4 text-center border border-[#C5A15B]/40 text-[#C5A15B] uppercase text-xs tracking-widest font-sans font-medium flex items-center justify-center gap-2 rounded-sm hover:bg-[#C5A15B]/10 transition-colors"
             >
               <ShieldCheck className="w-4 h-4" />
               <span>Studio Administration CMS</span>
@@ -119,13 +162,14 @@ export const Navbar: React.FC = () => {
 
             <Link
               href="/contact"
-              className="w-full py-3.5 btn-gold text-center uppercase text-xs tracking-widest font-sans"
+              onClick={() => setMobileOpen(false)}
+              className="w-full py-3.5 px-4 text-center bg-[#C5A15B] text-[#141414] uppercase text-xs tracking-widest font-sans font-semibold rounded-sm hover:bg-[#d6b168] transition-colors shadow-lg"
             >
               Consult With Atelier
             </Link>
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 };
