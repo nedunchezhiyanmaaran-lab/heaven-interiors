@@ -13,48 +13,51 @@ async function test() {
   await page.setViewport({ width: 1440, height: 900 });
 
   await page.goto('http://localhost:3000', { waitUntil: 'networkidle2' });
-  await new Promise(r => setTimeout(r, 1500));
+  await new Promise(r => setTimeout(r, 1200));
 
-  // Scroll to projects section
-  await page.evaluate(() => {
+  // Find position of #projects
+  const targetY = await page.evaluate(() => {
     const el = document.getElementById('projects');
-    if (el) {
-      el.scrollIntoView({ behavior: 'instant' });
-    }
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    return rect.top + window.scrollY;
   });
-  await new Promise(r => setTimeout(r, 1200));
-  await page.screenshot({ path: path.join(artifactDir, 'portfolio_modern_desktop_intro.png') });
+  console.log('Projects top is:', targetY);
 
-  // Scroll down a bit within the pinned track to see Project 01 & 02
-  await page.evaluate(() => {
-    window.scrollBy({ top: 900, behavior: 'instant' });
-  });
+  // 1. Scroll to top of projects section (Card 1)
+  await page.evaluate((top) => {
+    window.scrollTo(0, top + 100);
+  }, targetY);
   await new Promise(r => setTimeout(r, 1200));
-  await page.screenshot({ path: path.join(artifactDir, 'portfolio_modern_desktop_scrolled.png') });
+  await page.screenshot({ path: path.join(artifactDir, 'portfolio_stack_card1.png') });
 
-  // Scroll down more to see Project 02 & 03
-  await page.evaluate(() => {
-    window.scrollBy({ top: 1100, behavior: 'instant' });
-  });
+  // 2. Scroll further down so Card 2 stacks over Card 1 with 3D scale down
+  await page.evaluate((top) => {
+    window.scrollTo(0, top + 650);
+  }, targetY);
   await new Promise(r => setTimeout(r, 1200));
-  await page.screenshot({ path: path.join(artifactDir, 'portfolio_modern_desktop_scrolled2.png') });
+  await page.screenshot({ path: path.join(artifactDir, 'portfolio_stack_card2_stacking.png') });
 
-  // Mobile viewport
+  // 3. Scroll to Card 3
+  await page.evaluate((top) => {
+    window.scrollTo(0, top + 1300);
+  }, targetY);
+  await new Promise(r => setTimeout(r, 1200));
+  await page.screenshot({ path: path.join(artifactDir, 'portfolio_stack_card3.png') });
+
+  // 4. Mobile View
   await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
-  await page.evaluate(() => {
-    const el = document.getElementById('projects');
-    if (el) {
-      el.scrollIntoView({ behavior: 'instant' });
-    }
-  });
+  await page.evaluate((top) => {
+    window.scrollTo(0, top + 50);
+  }, targetY);
   await new Promise(r => setTimeout(r, 1000));
-  await page.screenshot({ path: path.join(artifactDir, 'portfolio_modern_mobile.png') });
+  await page.screenshot({ path: path.join(artifactDir, 'portfolio_stack_mobile.png') });
 
   await browser.close();
-  console.log('Portfolio screenshots captured successfully!');
+  console.log('Stacking cards screenshots captured successfully!');
 }
 
 test().catch(err => {
-  console.error('Portfolio capture error:', err);
+  console.error('Error:', err);
   process.exit(1);
 });
