@@ -1,24 +1,24 @@
 'use client';
 
-import React, { useRef, useState, useCallback, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { useProjects } from '@/hooks/useDataServices';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Sparkles, Star, Layers, Compass, ArrowUpRight } from 'lucide-react';
 
-// Register GSAP plugins
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
 export const FeaturedProjects: React.FC = () => {
-  const outerWrapperRef = useRef<HTMLDivElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
   const stickyFrameRef = useRef<HTMLDivElement>(null);
-  const imageLayersRef = useRef<(HTMLDivElement | null)[]>([]);
-  const textOverlayRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const imageElementsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const activeIndexRef = useRef<number>(0);
@@ -29,112 +29,56 @@ export const FeaturedProjects: React.FC = () => {
   const featured = projects.filter((p) => p.isFeatured).slice(0, 4);
   const displayProjects = featured.length >= 4 ? featured : projects.slice(0, 4);
 
-  // Core slide transition with sophisticated architectural clip-path wipe
-  const transitionToSlide = useCallback(
-    (targetIndex: number) => {
-      const prevIndex = activeIndexRef.current;
-      if (prevIndex === targetIndex) return;
-
-      const currentLayer = imageLayersRef.current[targetIndex];
-      const prevLayer = imageLayersRef.current[prevIndex];
-
-      activeIndexRef.current = targetIndex;
-      setActiveIndex(targetIndex);
-
-      if (currentLayer) {
-        // Bring new active layer to top
-        imageLayersRef.current.forEach((layer, idx) => {
-          if (layer) {
-            if (idx === targetIndex) {
-              gsap.set(layer, { zIndex: 10 });
-            } else if (idx === prevIndex) {
-              gsap.set(layer, { zIndex: 5 });
-            } else {
-              gsap.set(layer, { zIndex: 1 });
-            }
-          }
-        });
-
-        // Sophisticated clip-path reveal (wiping upwards smoothly from bottom)
-        gsap.fromTo(
-          currentLayer,
-          {
-            clipPath: 'polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)',
-            scale: 1.05
-          },
-          {
-            clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
-            scale: 1,
-            duration: 0.95,
-            ease: 'power3.inOut'
-          }
-        );
-      }
-
-      // Animate project typography independently
-      if (textOverlayRef.current) {
-        const textElements = Array.from(textOverlayRef.current.children);
-        gsap.fromTo(
-          textElements,
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.65,
-            stagger: 0.07,
-            ease: 'power3.out',
-            delay: 0.15
-          }
-        );
-      }
-    },
-    []
-  );
-
-  // Smooth jump triggered by buttons or bottom index tabs
-  const jumpToSlide = (targetIndex: number) => {
-    if (targetIndex < 0 || targetIndex >= displayProjects.length) return;
-    if (targetIndex === activeIndexRef.current) return;
-
-    if (outerWrapperRef.current && typeof window !== 'undefined' && window.innerWidth >= 1024) {
-      const rect = outerWrapperRef.current.getBoundingClientRect();
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const start = rect.top + scrollTop;
-      const totalScrollable = outerWrapperRef.current.offsetHeight - window.innerHeight;
-      const progressTarget = targetIndex / (displayProjects.length - 1);
-      const targetScroll = start + progressTarget * totalScrollable;
-
-      window.scrollTo({ top: targetScroll + 2, behavior: 'smooth' });
-    }
-
-    transitionToSlide(targetIndex);
-  };
-
-  // Synchronize desktop scrolling with active slide using native-safe ScrollTrigger
+  // GSAP Horizontal Scroll synchronized with native sticky frame
   useGSAP(
     () => {
       if (typeof window === 'undefined') return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      if (displayProjects.length <= 1) return;
+      if (!trackRef.current || !outerRef.current) return;
 
       const mm = gsap.matchMedia();
 
-      // Desktop Only (>= 1024px): Synchronize slide transitions with scroll progress
+      // Desktop Only (>= 1024px): Scrub horizontal track across native sticky viewport
       mm.add('(min-width: 1024px)', () => {
-        const total = displayProjects.length;
+        const track = trackRef.current;
+        if (!track) return;
 
         ScrollTrigger.create({
-          trigger: outerWrapperRef.current,
+          trigger: outerRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.5,
+          scrub: 0.8,
           onUpdate: (self) => {
-            const nextIdx = Math.min(
+            const progress = self.progress;
+
+            // 1. Calculate travel distance dynamically
+            const maxTravel = track.scrollWidth - window.innerWidth + 96;
+            const currentX = -progress * maxTravel;
+
+            gsap.set(track, { x: currentX });
+
+            // 2. Continuous scrub progress bar
+            if (progressBarRef.current) {
+              progressBarRef.current.style.width = `${Math.min(100, Math.max(0, progress * 100))}%`;
+            }
+
+            // 3. Parallax internal image shifts
+            imageElementsRef.current.forEach((imgWrap) => {
+              if (imgWrap) {
+                const imgShift = (progress - 0.5) * -40;
+                gsap.set(imgWrap, { x: imgShift });
+              }
+            });
+
+            // 4. Update active index indicator
+            const total = displayProjects.length;
+            const targetIdx = Math.min(
               total - 1,
-              Math.max(0, Math.floor(self.progress * total))
+              Math.max(0, Math.floor(progress * total))
             );
-            if (nextIdx !== activeIndexRef.current) {
-              transitionToSlide(nextIdx);
+            if (targetIdx !== activeIndexRef.current) {
+              activeIndexRef.current = targetIdx;
+              setActiveIndex(targetIdx);
             }
           }
         });
@@ -142,164 +86,347 @@ export const FeaturedProjects: React.FC = () => {
 
       return () => mm.revert();
     },
-    { scope: outerWrapperRef, dependencies: [displayProjects, transitionToSlide] }
+    { scope: outerRef, dependencies: [displayProjects] }
   );
 
-  const currentProject = displayProjects[activeIndex] || displayProjects[0];
+  // Smooth jump to specific project by index
+  const jumpToProject = (idx: number) => {
+    if (idx < 0 || idx >= displayProjects.length) return;
+    setActiveIndex(idx);
+    activeIndexRef.current = idx;
+
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth >= 1024 && outerRef.current) {
+        const rect = outerRef.current.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const start = rect.top + scrollTop;
+        const totalScrollable = outerRef.current.offsetHeight - window.innerHeight;
+        const targetScroll = start + (idx / Math.max(1, displayProjects.length - 1)) * totalScrollable;
+
+        window.scrollTo({ top: targetScroll + 2, behavior: 'smooth' });
+      } else {
+        // Mobile smooth scroll within track
+        const el = document.getElementById(`project-card-${idx}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      }
+    }
+  };
 
   return (
     <section
       id="projects"
-      ref={outerWrapperRef}
-      className="relative bg-[#E8E1D7] text-[#1A1815] w-full min-h-screen lg:h-[320vh]"
+      ref={outerRef}
+      className="relative bg-[#F5F0E6] text-[#141414] font-sans w-full min-h-screen lg:h-[300vh] border-t border-[#141414]/10"
     >
-      {/* 
-        Native CSS Sticky Frame (top-0 h-screen on desktop).
-        This eliminates GSAP pin-spacer artifacts, prevents blank voids,
-        and guarantees flawless synchronization with smooth scrolling.
-      */}
+      {/* Native Sticky Viewport Container */}
       <div
         ref={stickyFrameRef}
-        className="lg:sticky lg:top-0 w-full min-h-screen lg:h-screen lg:max-h-[1050px] flex flex-col justify-between overflow-hidden bg-[#E8E1D7]"
+        className="lg:sticky lg:top-0 w-full min-h-screen lg:h-screen lg:max-h-[1050px] flex flex-col justify-between overflow-hidden bg-[#F5F0E6] pt-20 sm:pt-24 pb-4 sm:pb-6"
       >
         {/* ========================================================
-            MAIN UPPER BODY: Split Screen
-            Left: Minimal Editorial Heading & Generous Whitespace
-            Right: Dominant Featured Project Image with Clip-Path Reveal
+            1. TOP HEADER BAR: Modern, Crisp & Clean
            ======================================================== */}
-        <div className="flex-1 w-full grid grid-cols-1 lg:grid-cols-12 min-h-0">
-          {/* Left Column (Approx 31-33% Width) */}
-          <div className="lg:col-span-4 xl:col-span-4 bg-[#E8E1D7] p-8 sm:p-12 lg:p-16 xl:p-20 flex flex-col justify-between z-20">
-            {/* Eyebrow: 02 —— PORTFOLIO */}
-            <div className="space-y-8">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-mono text-[#1A1815]">02</span>
-                <span className="w-10 h-[1px] bg-[#1A1815]/30" />
-                <span className="text-xs uppercase tracking-[0.25em] text-[#1A1815] font-mono font-medium">
-                  PORTFOLIO
-                </span>
-              </div>
-
-              {/* Dominant Editorial Heading: Spaces in Story */}
-              <div className="space-y-6 pt-4">
-                <h2 className="text-5xl sm:text-6xl xl:text-7xl 2xl:text-8xl font-serif font-light text-[#1A1815] leading-[0.98] tracking-tight">
-                  Spaces <br />
-                  in Story
-                </h2>
-
-                <p className="text-xs sm:text-sm text-[#4A453F] font-sans font-light leading-relaxed max-w-xs">
-                  Thoughtfully crafted spaces where architecture, material and human living come together in harmony.
-                </p>
-              </div>
+        <header className="w-full px-6 sm:px-10 lg:px-14 pb-4 shrink-0 z-20 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#141414]/5">
+          <div className="space-y-1.5">
+            {/* Clean Modern Eyebrow */}
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs uppercase tracking-[0.2em] text-[#C5A15B] font-semibold">
+                02 / CURATED COMMISSIONS
+              </span>
+              <div className="w-8 h-[1px] bg-[#C5A15B]/50" />
+              <span className="text-[11px] uppercase tracking-wider text-[#78726A] font-medium hidden sm:inline-flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-[#C5A15B]" />
+                Spatial Architecture
+              </span>
             </div>
 
-            {/* Minimal Explore Button: Circular Outline + Arrow */}
-            <div className="pt-10 lg:pt-0">
-              <Link
-                href="/projects"
-                className="group inline-flex items-center gap-5"
-              >
-                <div className="w-14 h-14 rounded-full border border-[#1A1815]/35 group-hover:border-[#1A1815] group-hover:bg-[#1A1815] group-hover:text-[#F5F0E6] text-[#1A1815] flex items-center justify-center transition-all duration-300">
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
-                </div>
-                <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#1A1815] leading-snug">
-                  EXPLORE <br />
-                  ALL PROJECTS
-                </div>
-              </Link>
-            </div>
+            {/* Bold Modern Title in Plus Jakarta Sans */}
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#141414] tracking-tight">
+              Spaces in Story
+            </h2>
           </div>
 
-          {/* Right Dominant Featured Project Image (Approx 67-69% Width) */}
-          <div className="lg:col-span-8 xl:col-span-8 relative w-full h-[480px] sm:h-[580px] lg:h-full min-h-0 bg-[#1c1815] overflow-hidden">
-            {/* Layered Architectural Project Photographs */}
+          {/* Subtitle & Direct Archive Link */}
+          <div className="flex items-center gap-8 text-right">
+            <p className="text-xs sm:text-sm text-[#78726A] font-normal leading-relaxed max-w-sm hidden xl:block">
+              Thoughtfully crafted spaces where architecture, material and human living coalesce into enduring sanctuaries.
+            </p>
+
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#141414]/20 hover:border-[#C5A15B] hover:text-[#C5A15B] text-xs font-semibold uppercase tracking-wider transition-all duration-300 group shrink-0 bg-white/70 shadow-sm"
+            >
+              <span>Explore All Projects</span>
+              <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          </div>
+        </header>
+
+        {/* ========================================================
+            2. HORIZONTAL GSAP TRACK: Cinematic Project Exhibition
+           ======================================================== */}
+        <div className="flex-1 min-h-0 flex items-center px-6 sm:px-10 lg:px-14 py-4 sm:py-6 overflow-x-auto lg:overflow-x-visible no-scrollbar snap-x snap-mandatory lg:snap-none">
+          <div
+            ref={trackRef}
+            className="flex items-center gap-6 sm:gap-8 lg:gap-10 shrink-0 pr-12 sm:pr-20"
+          >
+            {/* Card 0: Studio Curatorial Lead Card */}
+            <div className="w-[300px] sm:w-[360px] lg:w-[400px] shrink-0 h-[56vh] min-h-[440px] max-h-[540px] rounded-3xl bg-white border border-[#E5DEC9] p-8 sm:p-10 shadow-sm flex flex-col justify-between snap-start">
+              <div className="space-y-5">
+                <div className="w-12 h-12 rounded-2xl bg-[#C5A15B]/15 text-[#C5A15B] flex items-center justify-center">
+                  <Compass className="w-6 h-6" />
+                </div>
+
+                <div className="space-y-2.5">
+                  <span className="text-[11px] font-semibold uppercase tracking-widest text-[#C5A15B] block">
+                    Curatorial Approach
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-[#141414] tracking-tight leading-snug">
+                    Architectural Couture & Spatial Purity
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#78726A] font-normal leading-relaxed pt-1">
+                    Every commission is sculpted as an individual architectural identity. We balance raw masonry, calibrated timber, and tailored daylight.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <span className="px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E5DEC9] text-[10px] uppercase font-semibold text-[#141414] tracking-wider">
+                    Duplex Penthouses
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E5DEC9] text-[10px] uppercase font-semibold text-[#141414] tracking-wider">
+                    Bespoke Villas
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-[#FAF7F0] border border-[#E5DEC9] text-[10px] uppercase font-semibold text-[#141414] tracking-wider">
+                    Executive Spaces
+                  </span>
+                </div>
+              </div>
+
+              {/* Scroll prompt guide */}
+              <div className="pt-4 border-t border-[#E5DEC9]/80 flex items-center justify-between text-xs text-[#78726A]">
+                <span className="font-medium flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#C5A15B] animate-pulse" />
+                  Scroll down to tour works
+                </span>
+                <ArrowRight className="w-4 h-4 text-[#C5A15B] animate-bounce" />
+              </div>
+            </div>
+
+            {/* Cards 1 to N: Immersive Featured Architectural Project Cards */}
             {displayProjects.map((project, idx) => (
               <div
                 key={project.id}
-                ref={(el) => {
-                  imageLayersRef.current[idx] = el;
-                }}
-                className={`absolute inset-0 w-full h-full ${
-                  idx === activeIndex ? 'z-10' : 'z-0'
-                }`}
-                style={{
-                  clipPath:
-                    idx === 0
-                      ? 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)'
-                      : 'polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)'
-                }}
+                id={`project-card-${idx}`}
+                className="w-[84vw] sm:w-[680px] lg:w-[800px] xl:w-[900px] shrink-0 h-[56vh] min-h-[440px] max-h-[540px] rounded-3xl overflow-hidden border border-[#E5DEC9] shadow-xl relative bg-[#141414] group snap-start"
               >
-                <Image
-                  src={project.coverImage}
-                  alt={project.title}
-                  fill
-                  priority={idx === 0}
-                  sizes="(max-width: 1024px) 100vw, 70vw"
-                  className="object-cover object-center"
-                />
-                {/* Soft architectural gradient vignette ensuring optimal contrast */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+                {/* Background Photograph with GSAP Parallax Depth */}
+                <div
+                  ref={(el) => {
+                    imageElementsRef.current[idx] = el;
+                  }}
+                  className="absolute -inset-4 w-[108%] h-[108%] transition-transform duration-700 ease-out group-hover:scale-105"
+                >
+                  <Image
+                    src={project.coverImage}
+                    alt={project.title}
+                    fill
+                    priority={idx === 0}
+                    sizes="(max-width: 1024px) 85vw, 900px"
+                    className="object-cover object-center"
+                  />
+                  {/* Luxury Multi-Stop Vignette */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+                </div>
+
+                {/* Top Overlay Bar: Category, Location & Year Badges */}
+                <div className="absolute top-5 left-5 right-5 sm:top-6 sm:left-6 sm:right-6 z-20 flex items-center justify-between gap-3">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/15 text-white shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C5A15B]" />
+                    <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#DFC488]">
+                      {project.category}
+                    </span>
+                    <span className="text-white/30 text-[10px]">•</span>
+                    <span className="text-[10px] sm:text-[11px] font-medium text-white/90">
+                      {project.location}
+                    </span>
+                    <span className="text-white/30 text-[10px]">•</span>
+                    <span className="text-[10px] sm:text-[11px] font-medium text-white/70">
+                      {project.year}
+                    </span>
+                  </div>
+
+                  {project.isFeatured && (
+                    <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C5A15B]/20 backdrop-blur-md border border-[#C5A15B]/40 text-[#DFC488] text-[10px] font-bold uppercase tracking-wider">
+                      <Star className="w-3 h-3 fill-[#C5A15B] text-[#C5A15B]" />
+                      <span>Featured Work</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Overlay Area: Title, Description & Action */}
+                <div className="absolute bottom-5 sm:bottom-7 left-5 sm:left-8 right-5 sm:right-8 z-20 space-y-2.5 sm:space-y-3">
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C5A15B] block">
+                      0{idx + 1} / Commission
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight">
+                      {project.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#F5F0E6]/85 font-normal leading-relaxed line-clamp-2 max-w-2xl">
+                      {project.shortDescription}
+                    </p>
+                  </div>
+
+                  {/* Actions & Spec Badges */}
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-white/15">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-semibold text-white/75 bg-white/10 px-2.5 py-1 rounded-md border border-white/10">
+                        Turnkey Execution
+                      </span>
+                      <span className="text-[10px] uppercase font-semibold text-white/75 bg-white/10 px-2.5 py-1 rounded-md border border-white/10 hidden sm:inline-block">
+                        Bespoke Millwork
+                      </span>
+                    </div>
+
+                    <Link
+                      href={`/projects/${project.slug}`}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C5A15B] hover:bg-[#DFC488] text-[#141414] font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-lg group/btn"
+                    >
+                      <span>Explore Commission</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
+                    </Link>
+                  </div>
+                </div>
               </div>
             ))}
 
-            {/* Floating Project Metadata Overlay (Bottom-Left of Image) */}
-            <div
-              ref={textOverlayRef}
-              className="absolute bottom-8 sm:bottom-12 left-6 sm:left-12 lg:left-14 right-28 sm:right-36 z-20 space-y-3 pointer-events-auto"
-            >
-              {/* Category / Location / Year Capsule */}
-              <div className="inline-block bg-black/45 backdrop-blur-md px-3.5 py-1 text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.22em] text-[#F5F0E6] border border-white/10">
-                {currentProject.category} &nbsp;/&nbsp;{' '}
-                {currentProject.location.split(',')[0]} &nbsp;/&nbsp;{' '}
-                {currentProject.year}
+            {/* Final Card: Commission Invitation Card */}
+            <div className="w-[280px] sm:w-[320px] shrink-0 h-[56vh] min-h-[440px] max-h-[540px] rounded-3xl bg-white border border-[#E5DEC9] p-8 sm:p-10 shadow-sm flex flex-col justify-between snap-start">
+              <div className="space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#141414] text-[#C5A15B] flex items-center justify-center">
+                  <Layers className="w-6 h-6" />
+                </div>
+                <h3 className="text-2xl font-bold text-[#141414] tracking-tight">
+                  Have a bespoke residence in mind?
+                </h3>
+                <p className="text-xs sm:text-sm text-[#78726A] font-normal leading-relaxed">
+                  We collaborate with selective homeowners and studio partners worldwide. Schedule a private architectural consultation.
+                </p>
               </div>
 
-              {/* Project Title */}
-              <h3 className="text-3xl sm:text-4xl xl:text-5xl font-serif font-light text-[#F5F0E6] leading-tight">
-                {currentProject.title}
-              </h3>
-
-              {/* Project Description */}
-              <p className="text-xs sm:text-sm font-sans font-light text-[#E9E5DE]/85 leading-relaxed max-w-lg">
-                {currentProject.shortDescription}
-              </p>
-
-              {/* View Project Link */}
-              <div className="pt-2">
+              <div className="space-y-3">
                 <Link
-                  href={`/projects/${currentProject.slug}`}
-                  className="group inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.22em] text-[#C5A15B] hover:text-white transition-colors font-medium font-sans"
+                  href="/contact"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#141414] hover:bg-[#C5A15B] text-white hover:text-[#141414] text-xs font-bold uppercase tracking-wider transition-all shadow-md"
                 >
-                  <span>VIEW PROJECT</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                  <span>Initiate Dialogue</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <Link
+                  href="/projects"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full border border-[#E5DEC9] text-[#78726A] hover:text-[#141414] text-xs font-semibold uppercase tracking-wider transition-all"
+                >
+                  <span>All Projects Archive</span>
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Floating Navigation Controls (Bottom-Right of Image) */}
-            <div className="absolute bottom-8 sm:bottom-12 right-6 sm:right-12 z-20 flex items-center gap-3">
-              {/* Previous Project Button */}
+        {/* ========================================================
+            3. BOTTOM DOCK: Live Progress & Modern Interactive Tabs
+           ======================================================== */}
+        <footer className="w-full bg-[#F5F0E6] border-t border-[#141414]/10 px-6 sm:px-10 lg:px-14 py-3 shrink-0 z-20">
+          <div className="max-w-[1700px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+            {/* Live Progress Bar & Numeric Indicator */}
+            <div className="flex items-center gap-5 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#141414] tracking-wider">
+                  0{activeIndex + 1}
+                </span>
+                <span className="text-xs text-[#78726A]">/</span>
+                <span className="text-xs font-semibold text-[#78726A]">
+                  0{displayProjects.length}
+                </span>
+              </div>
+
+              {/* Continuous GSAP Timeline Scrub Indicator */}
+              <div className="w-28 sm:w-44 h-1.5 bg-[#141414]/10 rounded-full overflow-hidden">
+                <div
+                  ref={progressBarRef}
+                  className="h-full bg-[#C5A15B] rounded-full transition-all duration-300"
+                  style={{
+                    width: `${((activeIndex + 1) / displayProjects.length) * 100}%`
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Modern Clean Project Quick-Select Tabs */}
+            <div className="hidden lg:grid grid-cols-4 gap-4 flex-1 max-w-3xl ml-8">
+              {displayProjects.map((project, idx) => {
+                const isActive = activeIndex === idx;
+                return (
+                  <button
+                    key={project.id}
+                    onClick={() => jumpToProject(idx)}
+                    className="text-left group transition-all duration-300 py-1 focus:outline-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-bold tracking-wider transition-colors ${
+                          isActive
+                            ? 'text-[#C5A15B]'
+                            : 'text-[#78726A] group-hover:text-[#141414]'
+                        }`}
+                      >
+                        0{idx + 1}
+                      </span>
+                      <span
+                        className={`text-xs font-semibold truncate transition-colors ${
+                          isActive
+                            ? 'text-[#141414]'
+                            : 'text-[#78726A] group-hover:text-[#141414]'
+                        }`}
+                      >
+                        {project.title}
+                      </span>
+                    </div>
+                    {/* Active highlight line */}
+                    <div
+                      className={`h-[2px] mt-1 rounded-full transition-all duration-300 ${
+                        isActive ? 'bg-[#C5A15B] w-full' : 'bg-transparent w-0 group-hover:bg-[#141414]/20 group-hover:w-1/2'
+                      }`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Navigation Arrows with Hover Physics */}
+            <div className="flex items-center gap-2 shrink-0 self-end md:self-auto">
               <button
-                onClick={() => jumpToSlide(activeIndex - 1)}
+                onClick={() => jumpToProject(activeIndex - 1)}
                 disabled={activeIndex === 0}
-                className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-300 ${
+                className={`w-9 h-9 rounded-full border border-[#141414]/20 flex items-center justify-center transition-all ${
                   activeIndex === 0
-                    ? 'bg-black/20 text-white/20 cursor-not-allowed border border-white/5'
-                    : 'bg-black/50 hover:bg-black/80 text-white border border-white/10 shadow-lg'
+                    ? 'opacity-30 cursor-not-allowed text-[#78726A]'
+                    : 'bg-white hover:bg-[#141414] hover:text-white text-[#141414] shadow-sm'
                 }`}
                 aria-label="Previous project"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
 
-              {/* Next Project Button (Architectural Gold Filled) */}
               <button
-                onClick={() => jumpToSlide(activeIndex + 1)}
+                onClick={() => jumpToProject(activeIndex + 1)}
                 disabled={activeIndex === displayProjects.length - 1}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl ${
+                className={`w-9 h-9 rounded-full border border-[#141414]/20 flex items-center justify-center transition-all ${
                   activeIndex === displayProjects.length - 1
-                    ? 'bg-[#C5A15B]/40 text-[#141414]/40 cursor-not-allowed'
-                    : 'bg-[#C5A15B] hover:bg-[#DFC488] text-[#141414]'
+                    ? 'opacity-30 cursor-not-allowed text-[#78726A]'
+                    : 'bg-[#C5A15B] hover:bg-[#DFC488] text-[#141414] font-bold shadow-sm'
                 }`}
                 aria-label="Next project"
               >
@@ -307,66 +434,7 @@ export const FeaturedProjects: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
-
-        {/* ========================================================
-            BOTTOM BAR: Minimal Progress & Synchronized Index
-            Matches Bottom Strip of Reference Board
-           ======================================================== */}
-        <div className="w-full bg-[#E8E1D7] border-t border-[#1A1815]/10 px-6 sm:px-10 lg:px-16 py-6 z-20 shrink-0">
-          <div className="max-w-[1700px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
-            {/* Active Number Indicator & Gold Progress Bar */}
-            <div className="flex items-center gap-6 shrink-0">
-              <div className="space-y-1.5">
-                <span className="text-sm font-mono text-[#1A1815] font-semibold tracking-wider">
-                  0{activeIndex + 1}
-                </span>
-                {/* Minimal Progress Bar */}
-                <div className="w-32 sm:w-44 h-[2px] bg-[#1A1815]/15 overflow-hidden rounded-full">
-                  <div
-                    className="h-full bg-[#C5A15B] transition-all duration-500 ease-out"
-                    style={{
-                      width: `${((activeIndex + 1) / displayProjects.length) * 100}%`
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 4 Synchronized Project Columns Across Bottom */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 flex-1 md:ml-12 lg:ml-20">
-              {displayProjects.map((project, idx) => {
-                const isActive = activeIndex === idx;
-                return (
-                  <button
-                    key={project.id}
-                    onClick={() => jumpToSlide(idx)}
-                    className="text-left group transition-all duration-300 flex flex-col space-y-1 focus:outline-none"
-                  >
-                    <span
-                      className={`text-[11px] font-mono tracking-widest transition-colors ${
-                        isActive
-                          ? 'text-[#C5A15B] font-semibold'
-                          : 'text-[#1A1815]/45 group-hover:text-[#1A1815]'
-                      }`}
-                    >
-                      0{idx + 1}
-                    </span>
-                    <span
-                      className={`text-xs sm:text-sm font-serif truncate max-w-[200px] transition-colors ${
-                        isActive
-                          ? 'text-[#1A1815] font-medium'
-                          : 'text-[#6B655E] group-hover:text-[#1A1815]'
-                      }`}
-                    >
-                      {project.title}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        </footer>
       </div>
     </section>
   );
