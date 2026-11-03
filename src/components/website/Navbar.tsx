@@ -13,8 +13,7 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const isHome = pathname === '/' || pathname === '';
-      const threshold = isHome ? window.innerHeight * 1.5 : 50;
+      const threshold = 60;
       setScrolled(window.scrollY > threshold);
     };
     handleScroll();

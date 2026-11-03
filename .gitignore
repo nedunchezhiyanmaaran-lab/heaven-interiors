@@ -13,7 +13,8 @@
 # production
 /build
 
-# misc
+# raw source assets
+/videos/
 .DS_Store
 *.pem
 
