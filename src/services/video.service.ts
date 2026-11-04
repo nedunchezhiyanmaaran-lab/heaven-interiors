@@ -20,7 +20,17 @@ export interface IVideoService {
 
 class VideoService implements IVideoService {
   private getVideos(): VideoItem[] {
-    return storageService.getItem<VideoItem[]>(STORAGE_KEYS.VIDEOS, INITIAL_VIDEOS);
+    const stored = storageService.getItem<VideoItem[]>(STORAGE_KEYS.VIDEOS, INITIAL_VIDEOS);
+    const hasVid06 = stored.some((v) => v.id === 'vid-06');
+    if (!hasVid06) {
+      const merged = [INITIAL_VIDEOS[0], ...stored.filter((v) => v.id !== 'vid-06')].map((v, i) => ({
+        ...v,
+        displayOrder: i + 1
+      }));
+      storageService.setItem(STORAGE_KEYS.VIDEOS, merged);
+      return merged;
+    }
+    return [...stored].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
   }
 
   private saveVideos(videos: VideoItem[]): void {

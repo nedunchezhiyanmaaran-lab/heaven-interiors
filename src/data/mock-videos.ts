@@ -10,6 +10,22 @@ export const VIDEO_CATEGORIES = [
 
 export const INITIAL_VIDEOS: VideoItem[] = [
   {
+    id: 'vid-06',
+    title: 'The Metamorphosis — Raw Shell to Illuminated Sanctum',
+    description: 'A continuous cinematic document capturing the complete turnkey metamorphosis from exposed concrete structure to bespoke kitchen cabinetry and warm architectural lighting.',
+    category: 'Construction Progress',
+    videoUrl: '/videos/Untitled_Scene_11-03_19_58_07_20261104014542.mp4',
+    thumbnailUrl: '/videos/hero_poster.jpg',
+    duration: '00:15',
+    projectId: 'proj-01',
+    projectTitle: 'Worli Skyward Residence',
+    isFeatured: true,
+    displayOrder: 1,
+    isPublished: true,
+    createdAt: '2025-02-01T10:00:00.000Z',
+    updatedAt: '2025-02-15T12:00:00.000Z'
+  },
+  {
     id: 'vid-01',
     title: 'The Skyward Penthouse — Architectural Tour',
     description: 'An intimate 4K walkthrough exploring the double-height spatial volumes, bespoke travertine installations, and sunset reflections over Worli Sea Face.',
@@ -20,7 +36,7 @@ export const INITIAL_VIDEOS: VideoItem[] = [
     projectId: 'proj-01',
     projectTitle: 'The Skyward Penthouse',
     isFeatured: true,
-    displayOrder: 1,
+    displayOrder: 2,
     isPublished: true,
     createdAt: '2025-01-20T10:00:00.000Z',
     updatedAt: '2025-02-12T11:00:00.000Z'
@@ -36,7 +52,7 @@ export const INITIAL_VIDEOS: VideoItem[] = [
     projectId: 'proj-02',
     projectTitle: 'Aura Executive Headquarters',
     isFeatured: true,
-    displayOrder: 2,
+    displayOrder: 3,
     isPublished: true,
     createdAt: '2025-01-10T14:30:00.000Z',
     updatedAt: '2025-01-28T09:15:00.000Z'
@@ -52,7 +68,7 @@ export const INITIAL_VIDEOS: VideoItem[] = [
     projectId: 'proj-04',
     projectTitle: 'The Monolith Residence',
     isFeatured: true,
-    displayOrder: 3,
+    displayOrder: 4,
     isPublished: true,
     createdAt: '2025-01-25T16:00:00.000Z',
     updatedAt: '2025-02-01T12:00:00.000Z'
@@ -66,7 +82,7 @@ export const INITIAL_VIDEOS: VideoItem[] = [
     thumbnailUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
     duration: '03:15',
     isFeatured: false,
-    displayOrder: 4,
+    displayOrder: 5,
     isPublished: true,
     createdAt: '2024-12-05T09:00:00.000Z',
     updatedAt: '2025-01-14T10:30:00.000Z'
@@ -82,10 +98,9 @@ export const INITIAL_VIDEOS: VideoItem[] = [
     projectId: 'proj-03',
     projectTitle: 'Villa Terracotta',
     isFeatured: false,
-    displayOrder: 5,
+    displayOrder: 6,
     isPublished: true,
     createdAt: '2024-11-20T11:00:00.000Z',
     updatedAt: '2024-12-10T15:20:00.000Z'
   }
 ];
-

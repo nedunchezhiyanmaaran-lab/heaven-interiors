@@ -157,9 +157,9 @@ export const VideoShowcase: React.FC = () => {
         {/* Bottom Film Selector Thumbnails Row matching Section 07 */}
         <div
           ref={thumbnailsRef}
-          className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4"
+          className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4"
         >
-          {videos.slice(0, 4).map((vid, i) => (
+          {videos.slice(0, 6).map((vid, i) => (
             <div
               key={vid.id || i}
               onClick={() => setSelectedVideo(vid)}
