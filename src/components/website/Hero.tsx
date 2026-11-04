@@ -11,66 +11,128 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+const TOTAL_FRAMES = 120;
+
 export const Hero: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Storytelling stages refs
   const openingRef = useRef<HTMLDivElement>(null);
   const finaleRef = useRef<HTMLDivElement>(null);
 
-  // Video State
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const targetTimeRef = useRef(0);
-  const isSeekingRef = useRef(false);
+  // Frame sequence preloading & rendering state
+  const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
+  const currentFrameRef = useRef(0);
+  const [initialFrameReady, setInitialFrameReady] = useState(false);
 
-  // Safe seek mechanism that never overwhelms browser video decoder
-  const performSeek = useCallback(() => {
-    const video = videoRef.current;
-    if (!video || !video.duration || isNaN(video.duration)) return;
+  // High-performance canvas draw routine with cover aspect-ratio scaling
+  const drawFrame = useCallback((frameIndex: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) return;
 
-    const target = targetTimeRef.current;
-    const diff = Math.abs(video.currentTime - target);
-
-    if (diff > 0.02 && !isSeekingRef.current && video.readyState >= 2) {
-      isSeekingRef.current = true;
-      video.currentTime = target;
+    // Retrieve requested image or nearest available preloaded frame
+    let img = imagesRef.current[frameIndex];
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
+        const prev = imagesRef.current[frameIndex - offset];
+        if (prev && prev.complete && prev.naturalWidth > 0) {
+          img = prev;
+          break;
+        }
+        const next = imagesRef.current[frameIndex + offset];
+        if (next && next.complete && next.naturalWidth > 0) {
+          img = next;
+          break;
+        }
+      }
     }
+    if (!img || !img.complete || img.naturalWidth === 0) return;
+
+    currentFrameRef.current = frameIndex;
+
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+
+    const iRatio = iw / ih;
+    const cRatio = cw / ch;
+
+    let rw = cw;
+    let rh = ch;
+    let ox = 0;
+    let oy = 0;
+
+    if (cRatio > iRatio) {
+      rw = cw;
+      rh = cw / iRatio;
+      ox = 0;
+      oy = (ch - rh) / 2;
+    } else {
+      rh = ch;
+      rw = ch * iRatio;
+      ox = (cw - rw) / 2;
+      oy = 0;
+    }
+
+    ctx.drawImage(img, ox, oy, rw, rh);
   }, []);
 
-  // Initialize video metadata and attach seek listeners
+  // Initialize frame array and preload frames
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const images: (HTMLImageElement | null)[] = new Array(TOTAL_FRAMES).fill(null);
+    imagesRef.current = images;
 
-    const onLoadedMetadata = () => {
-      video.pause();
-      video.currentTime = 0.05;
-      setVideoLoaded(true);
+    // 1. Immediately preload the first frame for instantaneous zero-latency display
+    const firstImg = new Image();
+    firstImg.src = '/videos/frames/frame_000.jpg';
+    firstImg.onload = () => {
+      images[0] = firstImg;
+      setInitialFrameReady(true);
+      drawFrame(0);
     };
 
-    const onSeeked = () => {
-      isSeekingRef.current = false;
-      const target = targetTimeRef.current;
-      if (Math.abs(video.currentTime - target) > 0.03) {
-        performSeek();
+    // 2. Preload remaining frames in batches to avoid network congestion
+    const loadRemainingFrames = () => {
+      for (let i = 1; i < TOTAL_FRAMES; i++) {
+        const img = new Image();
+        const padded = String(i).padStart(3, '0');
+        img.src = `/videos/frames/frame_${padded}.jpg`;
+        img.onload = () => {
+          images[i] = img;
+        };
       }
     };
 
-    if (video.readyState >= 1) {
-      onLoadedMetadata();
+    // Use requestIdleCallback or small delay for background prefetching
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(loadRemainingFrames);
     } else {
-      video.addEventListener('loadedmetadata', onLoadedMetadata);
+      setTimeout(loadRemainingFrames, 100);
     }
 
-    video.addEventListener('seeked', onSeeked);
+    // 3. Handle window resizing to keep canvas razor-sharp at high DPR
+    const handleResize = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      drawFrame(currentFrameRef.current);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize, { passive: true });
 
     return () => {
-      video.removeEventListener('loadedmetadata', onLoadedMetadata);
-      video.removeEventListener('seeked', onSeeked);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [performSeek]);
+  }, [drawFrame]);
 
   // Click handler to initiate scroll exploration
   const handleScrollToExplore = () => {
@@ -93,29 +155,30 @@ export const Hero: React.FC = () => {
     }
   };
 
-  // GSAP ScrollTrigger timeline synchronization
+  // GSAP ScrollTrigger timeline synchronization with smooth canvas frame scrub
   useGSAP(
     () => {
       if (typeof window === 'undefined') return;
       const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (isReduced) return;
 
-      const video = videoRef.current;
+      const frameObj = { frame: 0 };
 
       // Pinned scroll track for the kitchen transformation video
       const scrollTriggerInstance = ScrollTrigger.create({
         trigger: containerRef.current,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.35,
+        scrub: 0.5, // Silky smooth GSAP physics scrub
         onUpdate: (self) => {
           const progress = self.progress; // 0.0 -> 1.0
 
-          // Synchronize Video Timeline with scroll progress
-          if (video && video.duration && !isNaN(video.duration)) {
-            targetTimeRef.current = progress * (video.duration - 0.05);
-            performSeek();
-          }
+          // Calculate exact target frame from scroll progress
+          const targetFrame = Math.min(
+            TOTAL_FRAMES - 1,
+            Math.max(0, Math.round(progress * (TOTAL_FRAMES - 1)))
+          );
+          drawFrame(targetFrame);
 
           // 1. OPENING STAGE (0.00 -> 0.16)
           // Fades out gently as soon as the visitor scrolls down
@@ -170,7 +233,7 @@ export const Hero: React.FC = () => {
         scrollTriggerInstance.kill();
       };
     },
-    { scope: containerRef, dependencies: [videoLoaded] }
+    { scope: containerRef, dependencies: [initialFrameReady, drawFrame] }
   );
 
   return (
@@ -188,19 +251,19 @@ export const Hero: React.FC = () => {
         className="sticky top-0 w-full h-screen h-[100dvh] overflow-hidden bg-[#141414] select-none"
       >
         {/* ========================================================
-            BRIGHT, VIVID CINEMATIC VIDEO (UNENCUMBERED BY HEAVY VIGNETTES)
+            60FPS HARDWARE-ACCELERATED CANVAS FRAME SEQUENCE
            ======================================================== */}
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
-          <video
-            ref={videoRef}
-            src="/videos/Kitchen_transformation_timelapse_301709d7_1080p.mp4"
-            poster="/videos/kitchen_timelapse_poster.jpg"
-            muted
-            playsInline
-            preload="auto"
-            tabIndex={-1}
-            aria-hidden="true"
-            className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] will-change-contents"
+          {/* Instant zero-flash poster background */}
+          <div
+            className="absolute inset-0 w-full h-full bg-cover bg-center brightness-[1.05] contrast-[1.02]"
+            style={{ backgroundImage: `url('/videos/frames/frame_000.jpg')` }}
+          />
+
+          {/* High-speed hardware-accelerated Canvas */}
+          <canvas
+            ref={canvasRef}
+            className="relative w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] will-change-transform"
           />
 
           {/* Subtle ambient gradient at the lower third — maintains bright natural daylight across 80% of frame while giving typography razor-sharp clarity */}
