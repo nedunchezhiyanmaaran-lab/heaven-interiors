@@ -203,9 +203,8 @@ export const Hero: React.FC = () => {
             className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] will-change-contents"
           />
 
-          {/* Minimal, luminous transparent lighting (kept light so the room stays bright) */}
-          <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/50 via-black/20 to-transparent pointer-events-none" />
+          {/* 100% bright, natural lighting — zero dark top overlay */}
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
         </div>
 
         {/* ========================================================

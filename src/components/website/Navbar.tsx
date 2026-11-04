@@ -62,11 +62,13 @@ export const Navbar: React.FC = () => {
     { label: 'CONTACT', href: '/contact' }
   ];
 
+  const isHome = pathname === '/' || pathname === '';
+
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
+          !isHome && scrolled
             ? 'py-4 bg-[#141414]/90 backdrop-blur-xl border-b border-white/10 shadow-2xl'
             : 'py-5 sm:py-6 bg-transparent border-b border-transparent shadow-none'
         }`}
