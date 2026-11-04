@@ -13,12 +13,27 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const threshold = 60;
+      const isHome = pathname === '/' || pathname === '';
+      let threshold = 60;
+      if (isHome) {
+        const heroEl = document.getElementById('home-hero');
+        if (heroEl) {
+          // Stay completely transparent throughout the hero scrollable transformation
+          threshold = heroEl.offsetHeight - window.innerHeight - 80;
+        } else {
+          threshold = window.innerHeight * 2;
+        }
+      }
       setScrolled(window.scrollY > threshold);
     };
+
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, [pathname]);
 
   // Lock body scroll when mobile menu is open
@@ -58,7 +73,9 @@ export const Navbar: React.FC = () => {
       >
         <div className="max-w-[1400px] mx-auto px-6 sm:px-10 flex items-center justify-between">
           {/* Brand Logo with official monogram */}
-          <Logo size="md" variant="light" />
+          <div className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+            <Logo size="md" variant="light" />
+          </div>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center space-x-9">
@@ -66,7 +83,7 @@ export const Navbar: React.FC = () => {
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-[11px] font-sans font-medium tracking-[0.22em] text-[#E9E5DE]/80 hover:text-[#C5A15B] transition-colors py-1 relative group"
+                className="text-[11px] font-sans font-medium tracking-[0.22em] text-[#F5F0E6] hover:text-[#C5A15B] transition-colors py-1 relative group drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
               >
                 {item.label}
                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1.5px] bg-[#C5A15B] transition-all duration-300 group-hover:w-full" />
@@ -78,7 +95,7 @@ export const Navbar: React.FC = () => {
           <div className="hidden sm:flex items-center space-x-4">
             <Link
               href="/admin"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase font-mono tracking-wider text-[#C5A15B]/80 hover:text-[#C5A15B] border border-[#C5A15B]/30 hover:border-[#C5A15B] transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase font-mono tracking-wider text-[#C5A15B] hover:text-white border border-[#C5A15B]/40 hover:border-[#C5A15B] bg-black/40 backdrop-blur-md transition-all shadow-md drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
               title="Open Atelier CMS"
             >
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -88,7 +105,7 @@ export const Navbar: React.FC = () => {
             {/* Reference pill button: ENQUIRE ↗ */}
             <Link
               href="/contact"
-              className="group px-5 py-2 rounded-full border border-[#C5A15B] text-[#C5A15B] hover:bg-[#C5A15B] hover:text-[#141414] transition-all duration-300 text-[11px] uppercase tracking-[0.2em] font-sans font-medium flex items-center gap-1.5 shadow-sm"
+              className="group px-5 py-2 rounded-full border border-[#C5A15B] text-[#C5A15B] hover:bg-[#C5A15B] hover:text-[#141414] bg-black/35 backdrop-blur-md transition-all duration-300 text-[11px] uppercase tracking-[0.2em] font-sans font-medium flex items-center gap-1.5 shadow-md drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
             >
               <span>ENQUIRE</span>
               <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -98,7 +115,7 @@ export const Navbar: React.FC = () => {
           {/* Mobile Hamburger Toggle Button */}
           <button
             onClick={() => setMobileOpen(true)}
-            className="lg:hidden p-2 text-[#F5F0E6] hover:text-[#C5A15B] transition-colors focus:outline-none"
+            className="lg:hidden p-2 text-[#F5F0E6] hover:text-[#C5A15B] bg-black/40 backdrop-blur-md rounded-full transition-colors focus:outline-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
             aria-label="Open navigation menu"
           >
             <Menu className="w-6 h-6" />

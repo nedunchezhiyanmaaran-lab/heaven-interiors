@@ -2,11 +2,10 @@
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { ArrowDown, ArrowUpRight, Compass, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowUpRight } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -19,13 +18,7 @@ export const Hero: React.FC = () => {
 
   // Storytelling stages refs
   const openingRef = useRef<HTMLDivElement>(null);
-  const beat1Ref = useRef<HTMLDivElement>(null);
-  const beat2Ref = useRef<HTMLDivElement>(null);
   const finaleRef = useRef<HTMLDivElement>(null);
-
-  // Scrubber UI refs
-  const scrubberFillRef = useRef<HTMLDivElement>(null);
-  const scrubberLabelRef = useRef<HTMLSpanElement>(null);
 
   // Video State
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -109,7 +102,7 @@ export const Hero: React.FC = () => {
 
       const video = videoRef.current;
 
-      // Pin and track the hero container across a generous 400vh scroll track
+      // Pinned scroll track for the kitchen transformation video
       const scrollTriggerInstance = ScrollTrigger.create({
         trigger: containerRef.current,
         start: 'top top',
@@ -124,8 +117,8 @@ export const Hero: React.FC = () => {
             performSeek();
           }
 
-          // 1. OPENING STAGE (0.00 -> 0.18)
-          // "WE TRANSFORM SPACES INTO EXPERIENCES."
+          // 1. OPENING STAGE (0.00 -> 0.16)
+          // Fades out gently as soon as the visitor scrolls down
           if (openingRef.current) {
             if (progress <= 0.01) {
               gsap.set(openingRef.current, {
@@ -134,11 +127,11 @@ export const Hero: React.FC = () => {
                 visibility: 'visible',
                 pointerEvents: 'auto'
               });
-            } else if (progress < 0.18) {
-              const op = Math.max(0, 1 - (progress - 0.01) / 0.14);
+            } else if (progress < 0.16) {
+              const op = Math.max(0, 1 - (progress - 0.01) / 0.12);
               gsap.set(openingRef.current, {
                 opacity: op,
-                y: -progress * 180,
+                y: -progress * 140,
                 visibility: op > 0.01 ? 'visible' : 'hidden',
                 pointerEvents: op > 0.1 ? 'auto' : 'none'
               });
@@ -151,68 +144,16 @@ export const Hero: React.FC = () => {
             }
           }
 
-          // 2. EDITORIAL BEAT 1 (0.22 -> 0.44)
-          // "01 / TACTILE MATERIALITY — From raw structural foundation to sculpted architectural sanctuary."
-          if (beat1Ref.current) {
-            if (progress >= 0.22 && progress <= 0.44) {
-              let op = 0;
-              if (progress < 0.27) {
-                op = (progress - 0.22) / 0.05;
-              } else if (progress > 0.39) {
-                op = 1 - (progress - 0.39) / 0.05;
-              } else {
-                op = 1;
-              }
-              const clamped = Math.max(0, Math.min(1, op));
-              gsap.set(beat1Ref.current, {
-                opacity: clamped,
-                y: (1 - clamped) * 20,
-                visibility: clamped > 0.01 ? 'visible' : 'hidden'
-              });
-            } else {
-              gsap.set(beat1Ref.current, {
-                opacity: 0,
-                visibility: 'hidden'
-              });
-            }
-          }
-
-          // 3. EDITORIAL BEAT 2 (0.48 -> 0.70)
-          // "02 / LIGHT & PROPORTION — Calibrated illumination and bespoke millwork crafted for human living."
-          if (beat2Ref.current) {
-            if (progress >= 0.48 && progress <= 0.70) {
-              let op = 0;
-              if (progress < 0.53) {
-                op = (progress - 0.48) / 0.05;
-              } else if (progress > 0.65) {
-                op = 1 - (progress - 0.65) / 0.05;
-              } else {
-                op = 1;
-              }
-              const clamped = Math.max(0, Math.min(1, op));
-              gsap.set(beat2Ref.current, {
-                opacity: clamped,
-                y: (1 - clamped) * 20,
-                visibility: clamped > 0.01 ? 'visible' : 'hidden'
-              });
-            } else {
-              gsap.set(beat2Ref.current, {
-                opacity: 0,
-                visibility: 'hidden'
-              });
-            }
-          }
-
-          // 4. FINALE STAGE (0.74 -> 1.00)
-          // "YOUR DREAM SPACE. BEAUTIFULLY REALIZED."
+          // 2. FINALE STAGE (0.75 -> 1.00)
+          // Appears when the kitchen transformation is beautifully realized
           if (finaleRef.current) {
-            if (progress >= 0.74) {
-              const op = Math.min(1, (progress - 0.74) / 0.10);
+            if (progress >= 0.75) {
+              const op = Math.min(1, (progress - 0.75) / 0.12);
               gsap.set(finaleRef.current, {
                 opacity: op,
-                y: (1 - op) * 24,
+                y: (1 - op) * 20,
                 visibility: 'visible',
-                pointerEvents: op > 0.4 ? 'auto' : 'none'
+                pointerEvents: op > 0.3 ? 'auto' : 'none'
               });
             } else {
               gsap.set(finaleRef.current, {
@@ -221,16 +162,6 @@ export const Hero: React.FC = () => {
                 pointerEvents: 'none'
               });
             }
-          }
-
-          // 5. SCRUBBER PROGRESS BAR
-          if (scrubberFillRef.current) {
-            gsap.set(scrubberFillRef.current, {
-              width: `${(progress * 100).toFixed(1)}%`
-            });
-          }
-          if (scrubberLabelRef.current) {
-            scrubberLabelRef.current.textContent = `${Math.round(progress * 100).toString().padStart(2, '0')}%`;
           }
         }
       });
@@ -246,7 +177,7 @@ export const Hero: React.FC = () => {
     <section
       id="home-hero"
       ref={containerRef}
-      className="relative w-full h-[400vh] bg-[#141414]"
+      className="relative w-full h-[320vh] bg-[#141414]"
     >
       {/* 
         Native CSS Sticky Frame (top-0 h-screen).
@@ -257,164 +188,77 @@ export const Hero: React.FC = () => {
         className="sticky top-0 w-full h-screen h-[100dvh] overflow-hidden bg-[#141414] select-none"
       >
         {/* ========================================================
-            CINEMATIC VIDEO CANVAS & VIGNETTE
+            BRIGHT, VIVID CINEMATIC VIDEO (UNENCUMBERED BY HEAVY VIGNETTES)
            ======================================================== */}
         <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
           <video
             ref={videoRef}
-            src="/videos/Untitled_Scene_11-03_19_58_07_20261104014542.mp4"
-            poster="/videos/hero_poster.jpg"
+            src="/videos/Kitchen_transformation_timelapse_301709d7_1080p.mp4"
+            poster="/videos/kitchen_timelapse_poster.jpg"
             muted
             playsInline
             preload="auto"
             tabIndex={-1}
             aria-hidden="true"
-            className="w-full h-full object-cover object-center will-change-contents"
+            className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] will-change-contents"
           />
 
-          {/* Architectural Vignettes & Contrast Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-black/60 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/40 pointer-events-none" />
-          <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+          {/* Minimal, luminous transparent lighting (kept light so the room stays bright) */}
+          <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/50 via-black/20 to-transparent pointer-events-none" />
         </div>
 
         {/* ========================================================
-            STAGE 1: OPENING HERO OVERLAY (0% - 18% SCROLL)
+            CLEAN, MINIMAL OPENING (LESS CONTENT, VAST WHITESPACE)
            ======================================================== */}
         <div
           ref={openingRef}
-          className="absolute inset-0 z-20 flex flex-col justify-between p-6 sm:p-12 md:p-16 max-w-[1400px] mx-auto w-full pointer-events-auto will-change-transform"
+          className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-12 md:p-16 max-w-[1400px] mx-auto w-full pointer-events-auto will-change-transform pb-16 sm:pb-20"
         >
-          {/* Top Brand Identity Badge */}
-          <div className="pt-20 sm:pt-24 flex items-center justify-between">
-            <div className="inline-flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-[#141414]/80 backdrop-blur-md border border-[#C5A15B]/30 shadow-lg">
-              <div className="relative w-5 h-5 rounded-full overflow-hidden border border-[#C5A15B]/40">
-                <Image
-                  src="/brand/logo.png"
-                  alt="Heaven Interiors"
-                  fill
-                  sizes="20px"
-                  className="object-contain p-0.5"
-                />
-              </div>
-              <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.25em] text-[#C5A15B] font-medium">
-                HEAVEN INTERIORS ATELIER
-              </span>
-            </div>
-
-            <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.25em] text-[#E9E5DE]/70 bg-[#141414]/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-              <Compass className="w-3.5 h-3.5 text-[#C5A15B]" />
-              <span>SPATIAL CHRONICLE</span>
-            </div>
-          </div>
-
-          {/* Center-Bottom Dramatic Typography */}
-          <div className="max-w-4xl space-y-5 pb-16 sm:pb-20">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-light text-[#F5F0E6] leading-[1.0] tracking-tight uppercase drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
+          <div className="max-w-4xl space-y-4">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-light text-[#F5F0E6] leading-[1.0] tracking-tight uppercase drop-shadow-[0_2px_20px_rgba(0,0,0,0.85)]">
               WE TRANSFORM SPACES INTO EXPERIENCES.
             </h1>
 
-            <p className="text-xs sm:text-sm md:text-base font-sans uppercase tracking-[0.24em] text-[#E9E5DE]/90 font-normal max-w-2xl leading-relaxed drop-shadow-md">
+            <p className="text-xs sm:text-sm md:text-base font-sans uppercase tracking-[0.22em] text-[#F5F0E6]/90 font-light max-w-2xl leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
               Thoughtfully designed interiors. Beautifully crafted living.
             </p>
 
-            {/* Interactive "SCROLL TO EXPLORE" trigger */}
-            <div className="pt-3 flex items-center gap-4">
+            {/* Subtle Minimalist Scroll Indicator */}
+            <div className="pt-4 flex items-center gap-4">
               <button
                 onClick={handleScrollToExplore}
-                className="group inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-[#141414]/90 hover:bg-[#C5A15B] backdrop-blur-md border border-[#C5A15B]/50 hover:border-[#C5A15B] text-[#F5F0E6] hover:text-[#141414] transition-all duration-300 shadow-xl cursor-pointer"
+                className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-black/40 hover:bg-[#C5A15B] backdrop-blur-md border border-[#C5A15B]/60 hover:border-[#C5A15B] text-[#F5F0E6] hover:text-[#141414] transition-all duration-300 shadow-xl cursor-pointer"
                 aria-label="Scroll to explore interior transformation"
               >
-                <div className="w-6 h-6 rounded-full border border-current flex items-center justify-center transition-transform group-hover:translate-y-0.5">
-                  <ArrowDown className="w-3 h-3" />
-                </div>
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.22em] font-sans font-medium pr-1">
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.22em] font-sans font-medium">
                   SCROLL TO EXPLORE
                 </span>
+                <ArrowDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" />
               </button>
-
-              <span className="hidden md:inline-block text-[10px] font-mono uppercase tracking-[0.2em] text-[#E9E5DE]/60 bg-black/40 px-3 py-1 rounded-full">
-                SCROLL TO ADVANCE TRANSFORMATION
-              </span>
             </div>
           </div>
         </div>
 
         {/* ========================================================
-            STAGE 2: EDITORIAL BEAT 1 (22% - 44% SCROLL)
-           ======================================================== */}
-        <div
-          ref={beat1Ref}
-          style={{ opacity: 0, visibility: 'hidden' }}
-          className="absolute left-6 sm:left-12 md:left-20 bottom-24 sm:bottom-28 z-20 max-w-md pointer-events-none will-change-transform"
-        >
-          <div className="p-5 sm:p-6 rounded-xl bg-[#141414]/90 backdrop-blur-xl border border-[#C5A15B]/30 shadow-[0_10px_35px_rgba(0,0,0,0.8)] space-y-2.5">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#C5A15B]" />
-              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#C5A15B] font-bold">
-                01 / TACTILE MATERIALITY
-              </span>
-            </div>
-            <p className="text-base sm:text-lg font-serif text-[#F5F0E6] leading-snug">
-              From raw structural foundation to sculpted architectural sanctuary.
-            </p>
-            <p className="text-[11px] font-sans text-[#E5DEC9]/70 leading-relaxed tracking-wider uppercase pt-1 border-t border-white/10">
-              Engineered substrates &bull; Bespoke veneers &bull; Precision masonry
-            </p>
-          </div>
-        </div>
-
-        {/* ========================================================
-            STAGE 3: EDITORIAL BEAT 2 (48% - 70% SCROLL)
-           ======================================================== */}
-        <div
-          ref={beat2Ref}
-          style={{ opacity: 0, visibility: 'hidden' }}
-          className="absolute right-6 sm:right-12 md:right-20 bottom-24 sm:bottom-28 z-20 max-w-md pointer-events-none will-change-transform"
-        >
-          <div className="p-5 sm:p-6 rounded-xl bg-[#141414]/90 backdrop-blur-xl border border-[#C5A15B]/30 shadow-[0_10px_35px_rgba(0,0,0,0.8)] space-y-2.5 text-right">
-            <div className="flex items-center justify-end gap-2">
-              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#C5A15B] font-bold">
-                02 / LIGHT & PROPORTION
-              </span>
-              <span className="w-2 h-2 rounded-full bg-[#C5A15B]" />
-            </div>
-            <p className="text-base sm:text-lg font-serif text-[#F5F0E6] leading-snug">
-              Calibrated illumination and bespoke millwork crafted for human living.
-            </p>
-            <p className="text-[11px] font-sans text-[#E5DEC9]/70 leading-relaxed tracking-wider uppercase pt-1 border-t border-white/10">
-              Custom cabinetry &bull; Architectural pendant lights &bull; Seamless finishes
-            </p>
-          </div>
-        </div>
-
-        {/* ========================================================
-            STAGE 4: FINALE STAGE (74% - 100% SCROLL)
+            CLEAN, MINIMAL FINALE REVEAL (WHEN TRANSFORMATION COMPLETES)
            ======================================================== */}
         <div
           ref={finaleRef}
           style={{ opacity: 0, visibility: 'hidden' }}
-          className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-12 md:p-16 max-w-[1400px] mx-auto w-full pointer-events-none will-change-transform"
+          className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-12 md:p-16 max-w-[1400px] mx-auto w-full pointer-events-none will-change-transform pb-16 sm:pb-20"
         >
-          <div className="max-w-3xl pb-16 sm:pb-20 space-y-5">
-            {/* Architectural Completion Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#141414]/90 backdrop-blur-md border border-[#C5A15B]/50 text-[#C5A15B] shadow-xl">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-mono uppercase tracking-[0.25em] font-semibold">
-                HEAVEN INTERIORS &bull; COMPLETED RESIDENCE
-              </span>
-            </div>
-
-            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-light text-[#F5F0E6] leading-[1.05] tracking-tight uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
+          <div className="max-w-3xl space-y-4">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-light text-[#F5F0E6] leading-[1.05] tracking-tight uppercase drop-shadow-[0_2px_25px_rgba(0,0,0,0.9)]">
               YOUR DREAM SPACE. BEAUTIFULLY REALIZED.
             </h2>
 
-            <p className="text-xs sm:text-sm font-sans uppercase tracking-[0.24em] text-[#E9E5DE]/90 font-normal max-w-xl leading-relaxed drop-shadow-md">
+            <p className="text-xs sm:text-sm font-sans uppercase tracking-[0.22em] text-[#F5F0E6]/90 font-light max-w-xl leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
               Bespoke turnkey interior architecture, master millwork, and end-to-end execution across India.
             </p>
 
             {/* Action Buttons */}
-            <div className="pt-3 flex flex-wrap items-center gap-4 pointer-events-auto">
+            <div className="pt-2 flex flex-wrap items-center gap-4 pointer-events-auto">
               <button
                 onClick={handleScrollToProjects}
                 className="group px-6 py-3.5 rounded-full bg-[#C5A15B] hover:bg-[#d6b168] text-[#141414] font-sans font-semibold text-xs uppercase tracking-[0.2em] flex items-center gap-2.5 transition-all duration-300 shadow-2xl cursor-pointer"
@@ -425,37 +269,12 @@ export const Hero: React.FC = () => {
 
               <Link
                 href="/contact"
-                className="group px-6 py-3.5 rounded-full bg-[#141414]/90 hover:bg-[#141414] backdrop-blur-md border border-white/30 hover:border-[#C5A15B] text-[#F5F0E6] hover:text-[#C5A15B] font-sans font-medium text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all duration-300 shadow-xl"
+                className="group px-6 py-3.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/40 hover:border-[#C5A15B] text-[#F5F0E6] hover:text-[#C5A15B] font-sans font-medium text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all duration-300 shadow-xl"
               >
                 <span>CONSULT WITH ATELIER</span>
                 <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
             </div>
-          </div>
-        </div>
-
-        {/* ========================================================
-            CINEMATIC PROGRESS SCRUBBER BAR (BOTTOM)
-           ======================================================== */}
-        <div className="absolute bottom-6 left-6 right-6 sm:left-12 sm:right-12 z-20 flex items-center justify-between gap-6 pointer-events-none">
-          <div className="flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-[#C5A15B] animate-pulse" />
-            <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.25em] text-[#E9E5DE]/80 bg-[#141414]/60 backdrop-blur-md px-2.5 py-1 rounded-full">
-              CHRONICLE
-            </span>
-          </div>
-
-          {/* Minimalist Progress Track */}
-          <div className="flex-1 max-w-xs sm:max-w-md h-[2px] bg-white/20 rounded-full overflow-hidden relative shadow-md">
-            <div
-              ref={scrubberFillRef}
-              style={{ width: '0%' }}
-              className="h-full bg-gradient-to-r from-[#C5A15B]/60 to-[#C5A15B] rounded-full will-change-transform"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 font-mono text-[10px] text-[#C5A15B] bg-[#141414]/60 backdrop-blur-md px-2.5 py-1 rounded-full">
-            <span ref={scrubberLabelRef}>00%</span>
           </div>
         </div>
       </div>
