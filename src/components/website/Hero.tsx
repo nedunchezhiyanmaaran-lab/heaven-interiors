@@ -203,75 +203,98 @@ export const Hero: React.FC = () => {
             className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] will-change-contents"
           />
 
-          {/* 100% bright, natural lighting — zero dark top overlay */}
-          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          {/* Subtle ambient gradient at the lower third — maintains bright natural daylight across 80% of frame while giving typography razor-sharp clarity */}
+          <div className="absolute inset-x-0 bottom-0 h-72 sm:h-80 bg-gradient-to-t from-black/60 via-black/25 to-transparent pointer-events-none" />
         </div>
 
         {/* ========================================================
-            CLEAN, MINIMAL OPENING (LESS CONTENT, VAST WHITESPACE)
+            REFINED ARCHITECTURAL OPENING (CENTERED, CLEAN & AIRY)
            ======================================================== */}
         <div
           ref={openingRef}
-          className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-12 md:p-16 max-w-[1400px] mx-auto w-full pointer-events-auto will-change-transform pb-16 sm:pb-20"
+          className="absolute inset-0 z-20 flex flex-col justify-end items-center text-center p-6 sm:p-10 md:p-16 max-w-[1280px] mx-auto w-full pointer-events-auto will-change-transform pb-16 sm:pb-20 md:pb-24"
         >
-          <div className="max-w-4xl space-y-4">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-light text-[#F5F0E6] leading-[1.0] tracking-tight uppercase drop-shadow-[0_2px_20px_rgba(0,0,0,0.85)]">
-              WE TRANSFORM SPACES INTO EXPERIENCES.
+          <div className="max-w-3xl flex flex-col items-center space-y-3.5 sm:space-y-4">
+            {/* Atelier Moniker */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <span className="w-5 sm:w-8 h-[1px] bg-[#C5A15B]/80 shrink-0" />
+              <span className="text-[9px] sm:text-[11px] font-sans font-semibold uppercase tracking-[0.24em] sm:tracking-[0.28em] text-[#C5A15B] drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)] whitespace-nowrap">
+                <span className="hidden sm:inline">HEAVEN INTERIORS • </span>ARCHITECTURAL ATELIER
+              </span>
+              <span className="w-5 sm:w-8 h-[1px] bg-[#C5A15B]/80 shrink-0" />
+            </div>
+
+            {/* Main Headline — Balanced editorial scale, clean & poetic */}
+            <h1 className="text-3xl sm:text-5xl md:text-[3.25rem] font-serif font-light text-[#FAF7F0] leading-[1.14] tracking-[0.02em] max-w-2xl mx-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+              We transform spaces<br className="hidden sm:inline" /> into experiences.
             </h1>
 
-            <p className="text-xs sm:text-sm md:text-base font-sans uppercase tracking-[0.22em] text-[#F5F0E6]/90 font-light max-w-2xl leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+            {/* Subtitle — Airy, modern, uncluttered */}
+            <p className="text-xs sm:text-sm font-sans font-light uppercase tracking-[0.2em] text-[#E9E5DE]/85 max-w-lg mx-auto leading-relaxed drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
               Thoughtfully designed interiors. Beautifully crafted living.
             </p>
 
-            {/* Subtle Minimalist Scroll Indicator */}
-            <div className="pt-4 flex items-center gap-4">
+            {/* Architectural Minimalist Scroll Prompt */}
+            <div className="pt-2 sm:pt-3">
               <button
                 onClick={handleScrollToExplore}
-                className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-black/40 hover:bg-[#C5A15B] backdrop-blur-md border border-[#C5A15B]/60 hover:border-[#C5A15B] text-[#F5F0E6] hover:text-[#141414] transition-all duration-300 shadow-xl cursor-pointer"
+                className="group inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/35 hover:bg-black/55 backdrop-blur-md border border-white/20 hover:border-[#C5A15B]/60 text-[#FAF7F0] transition-all duration-300 shadow-xl cursor-pointer"
                 aria-label="Scroll to explore interior transformation"
               >
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.22em] font-sans font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C5A15B] group-hover:scale-125 transition-transform" />
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.24em] font-sans font-medium text-[#FAF7F0]/90 group-hover:text-white">
                   SCROLL TO EXPLORE
                 </span>
-                <ArrowDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" />
+                <ArrowDown className="w-3.5 h-3.5 text-[#C5A15B] transition-transform group-hover:translate-y-0.5" />
               </button>
             </div>
           </div>
         </div>
 
         {/* ========================================================
-            CLEAN, MINIMAL FINALE REVEAL (WHEN TRANSFORMATION COMPLETES)
+            REFINED ARCHITECTURAL FINALE REVEAL (CENTERED & HARMONIOUS)
            ======================================================== */}
         <div
           ref={finaleRef}
           style={{ opacity: 0, visibility: 'hidden' }}
-          className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-12 md:p-16 max-w-[1400px] mx-auto w-full pointer-events-none will-change-transform pb-16 sm:pb-20"
+          className="absolute inset-0 z-20 flex flex-col justify-end items-center text-center p-6 sm:p-10 md:p-16 max-w-[1280px] mx-auto w-full pointer-events-none will-change-transform pb-16 sm:pb-20 md:pb-24"
         >
-          <div className="max-w-3xl space-y-4">
-            <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-light text-[#F5F0E6] leading-[1.05] tracking-tight uppercase drop-shadow-[0_2px_25px_rgba(0,0,0,0.9)]">
-              YOUR DREAM SPACE. BEAUTIFULLY REALIZED.
+          <div className="max-w-3xl flex flex-col items-center space-y-3.5 sm:space-y-4">
+            {/* Atelier Commission Moniker */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <span className="w-5 sm:w-8 h-[1px] bg-[#C5A15B]/80 shrink-0" />
+              <span className="text-[9px] sm:text-[11px] font-sans font-semibold uppercase tracking-[0.24em] sm:tracking-[0.28em] text-[#C5A15B] drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)] whitespace-nowrap">
+                <span className="hidden sm:inline">TRANSFORMATION COMPLETE • </span>COMMISSION 2026
+              </span>
+              <span className="w-5 sm:w-8 h-[1px] bg-[#C5A15B]/80 shrink-0" />
+            </div>
+
+            {/* Finale Headline — Balanced two-line symmetry */}
+            <h2 className="text-3xl sm:text-5xl md:text-[3.25rem] font-serif font-light text-[#FAF7F0] leading-[1.14] tracking-[0.02em] max-w-xl mx-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+              Your Dream Space.<br className="hidden sm:inline" /> Beautifully Realized.
             </h2>
 
-            <p className="text-xs sm:text-sm font-sans uppercase tracking-[0.22em] text-[#F5F0E6]/90 font-light max-w-xl leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+            {/* Subtitle */}
+            <p className="text-xs sm:text-sm font-sans font-light uppercase tracking-[0.18em] text-[#E9E5DE]/85 max-w-lg mx-auto leading-relaxed drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]">
               Bespoke turnkey interior architecture, master millwork, and end-to-end execution across India.
             </p>
 
-            {/* Action Buttons */}
-            <div className="pt-2 flex flex-wrap items-center gap-4 pointer-events-auto">
+            {/* Centered Luxury Action Buttons */}
+            <div className="pt-2 sm:pt-3 flex flex-wrap items-center justify-center gap-3 sm:gap-4 pointer-events-auto w-full">
               <button
                 onClick={handleScrollToProjects}
-                className="group px-6 py-3.5 rounded-full bg-[#C5A15B] hover:bg-[#d6b168] text-[#141414] font-sans font-semibold text-xs uppercase tracking-[0.2em] flex items-center gap-2.5 transition-all duration-300 shadow-2xl cursor-pointer"
+                className="px-7 py-3 rounded-full bg-[#C5A15B] hover:bg-[#d6b168] text-[#141414] font-sans font-medium text-[11px] uppercase tracking-[0.2em] flex items-center gap-2.5 transition-all duration-300 shadow-xl cursor-pointer"
               >
                 <span>EXPLORE OUR PROJECTS</span>
-                <ArrowDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
+                <ArrowDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" />
               </button>
 
               <Link
                 href="/contact"
-                className="group px-6 py-3.5 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md border border-white/40 hover:border-[#C5A15B] text-[#F5F0E6] hover:text-[#C5A15B] font-sans font-medium text-xs uppercase tracking-[0.2em] flex items-center gap-2 transition-all duration-300 shadow-xl"
+                className="px-7 py-3 rounded-full bg-black/35 hover:bg-black/55 backdrop-blur-md border border-white/20 hover:border-[#C5A15B] text-[#FAF7F0] hover:text-[#C5A15B] font-sans font-medium text-[11px] uppercase tracking-[0.2em] flex items-center gap-2 transition-all duration-300 shadow-xl"
               >
                 <span>CONSULT WITH ATELIER</span>
-                <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
             </div>
           </div>

@@ -14,17 +14,23 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       const isHome = pathname === '/' || pathname === '';
-      let threshold = 60;
       if (isHome) {
+        const aboutEl = document.getElementById('about');
+        if (aboutEl) {
+          const rect = aboutEl.getBoundingClientRect();
+          // Navbar stays strictly 100% transparent throughout the hero video scrollable experience
+          // Only transitions to frosted dark bar once the cream #about section scrolls into the top
+          setScrolled(rect.top <= 80);
+          return;
+        }
         const heroEl = document.getElementById('home-hero');
         if (heroEl) {
-          // Stay completely transparent throughout the hero scrollable transformation
-          threshold = heroEl.offsetHeight - window.innerHeight - 80;
-        } else {
-          threshold = window.innerHeight * 2;
+          const rect = heroEl.getBoundingClientRect();
+          setScrolled(rect.bottom <= 80);
+          return;
         }
       }
-      setScrolled(window.scrollY > threshold);
+      setScrolled(window.scrollY > 40);
     };
 
     handleScroll();
@@ -68,8 +74,8 @@ export const Navbar: React.FC = () => {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          !isHome && scrolled
-            ? 'py-4 bg-[#141414]/90 backdrop-blur-xl border-b border-white/10 shadow-2xl'
+          scrolled
+            ? 'py-4 bg-[#141414]/95 backdrop-blur-xl border-b border-white/10 shadow-2xl'
             : 'py-5 sm:py-6 bg-transparent border-b border-transparent shadow-none'
         }`}
       >
